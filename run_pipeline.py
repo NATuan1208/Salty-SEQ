@@ -207,11 +207,11 @@ def main():
     # Tổng kết
     _banner("Pipeline hoàn thành  ✓", "═")
     print("\n  Các file output:")
-    for f in sorted(OUTPUT_DIR.iterdir()):
+    for f in sorted(DATA_DIR.iterdir()):
         size_kb = f.stat().st_size / 1024
         print(f"    {f.name:<40}  {size_kb:>8.1f} KB")
 
-    merged = OUTPUT_DIR / "merged_final.csv"
+    merged = DATA_DIR / "merged_final.csv"
     if merged.exists():
         import pandas as pd  # lazy import — only needed for summary
         df = pd.read_csv(merged)

@@ -22,7 +22,7 @@ from pathlib import Path
 TARGET_LAT = 10.24
 TARGET_LON = 106.37
 START_DATE = "2023-01-01"
-END_DATE = "2023-12-31"
+END_DATE = "2025-12-31"
 
 OUTPUT_DIR = Path(__file__).parent.parent / "data"
 OUTPUT_FILE = OUTPUT_DIR / "real_weather.csv"

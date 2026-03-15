@@ -15,7 +15,7 @@
 # │    • Salinity:       daily (proxy, 100% complete)      │
 # │                                                        │
 # │  Solution:                                             │
-# │    1. Tạo daily date index (365 ngày)                  │
+# │    1. Tạo daily date index (toàn giai đoạn nghiên cứu) │
 # │    2. Left-join satellite data (sparse) lên daily grid │
 # │    3. Linear interpolation cho NDVI/LST gaps           │
 # │       (limit=15 ngày — beyond that is unreliable)      │
@@ -35,7 +35,7 @@ warnings.filterwarnings('ignore')
 
 # ── CẤU HÌNH ───────────────────────────────────────────────
 START_DATE = "2023-01-01"
-END_DATE = "2023-12-31"
+END_DATE = "2025-12-31"
 
 OUTPUT_DIR = Path(__file__).parent.parent / "data"
 SATELLITE_FILE = OUTPUT_DIR / "real_ndvi_lst.csv"
@@ -52,11 +52,11 @@ def load_sources():
     # Pre-flight: kiểm tra file tồn tại trước khi đọc
     missing = []
     if not SATELLITE_FILE.exists():
-        missing.append(f"  • {SATELLITE_FILE.name}  → chạy script1_satellite_gee.py trước")
+        missing.append(f"  • {SATELLITE_FILE.name}  → chạy src/satellite_gee.py trước")
     if not WEATHER_FILE.exists():
-        missing.append(f"  • {WEATHER_FILE.name}  → chạy script2_weather_openmeteo.py trước")
+        missing.append(f"  • {WEATHER_FILE.name}  → chạy src/weather_openmeteo.py trước")
     if not SALINITY_FILE.exists():
-        missing.append(f"  • {SALINITY_FILE.name}  → chạy script3_salinity.py trước")
+        missing.append(f"  • {SALINITY_FILE.name}  → chạy src/salinity.py trước")
     if missing:
         raise FileNotFoundError(
             "\n[script4] Thiếu file đầu vào:\n" + "\n".join(missing) +
@@ -130,10 +130,11 @@ def align_to_daily(df_sat):
     df_daily['ndvi'] = df_daily['ndvi'].ffill().bfill()
     df_daily['lst'] = df_daily['lst'].ffill().bfill()
 
-    ndvi_interp = 365 - ndvi_obs
-    lst_interp = 365 - lst_obs
-    print(f"  NDVI: {ndvi_obs} observed + {ndvi_interp} interpolated = 365 daily")
-    print(f"  LST:  {lst_obs} observed + {lst_interp} interpolated = 365 daily")
+    total_days = len(df_daily)
+    ndvi_interp = total_days - ndvi_obs
+    lst_interp = total_days - lst_obs
+    print(f"  NDVI: {ndvi_obs} observed + {ndvi_interp} interpolated = {total_days} daily")
+    print(f"  LST:  {lst_obs} observed + {lst_interp} interpolated = {total_days} daily")
 
     return df_daily
 
