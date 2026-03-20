@@ -44,3 +44,9 @@ logs/
 # Môi trường
 .env
 *.env
+
+# Claude Code
+.claude/
+
+# Nội bộ
+Strategy.md
