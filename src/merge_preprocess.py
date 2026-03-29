@@ -1,387 +1,426 @@
-# ============================================================
-# SaltySeq — Script 4: Merging & Preprocessing Strategy
-# ============================================================
-# Mục đích: Ghép 3 nguồn dữ liệu thành 1 DataFrame sạch, sẵn sàng
-#           cho PrefixSpan (Sequential Pattern Mining) và XGBoost
-#           (Anomaly Detection).
-#
-# ┌────────────────────────────────────────────────────────┐
-# │  SPATIO-TEMPORAL ALIGNMENT STRATEGY                    │
-# │                                                        │
-# │  Problem:                                              │
-# │    • Satellite NDVI: ~5 ngày (irregular, cloud gaps)   │
-# │    • Satellite LST:  ~8-16 ngày (Landsat 8+9 merged)  │
-# │    • Weather:        daily (100% complete)             │
-# │    • Salinity:       daily (proxy, 100% complete)      │
-# │                                                        │
-# │  Solution:                                             │
-# │    1. Tạo daily date index (toàn giai đoạn nghiên cứu) │
-# │    2. Left-join satellite data (sparse) lên daily grid │
-# │    3. Linear interpolation cho NDVI/LST gaps           │
-# │       (limit=15 ngày — beyond that is unreliable)      │
-# │    4. Inner-merge với weather + salinity (daily)        │
-# │    5. Feature engineering: rolling stats, lag, anomaly  │
-# │    6. Forward-fill cho remaining NaN edges              │
-# └────────────────────────────────────────────────────────┘
-#
-# Output: data/merged_final.csv
-# ============================================================
+"""SaltySeq Script 4: Panel merge and preprocessing pipeline."""
 
-import pandas as pd
-import numpy as np
+from __future__ import annotations
+
+import logging
 from pathlib import Path
-import warnings
-warnings.filterwarnings('ignore')
 
-# ── CẤU HÌNH ───────────────────────────────────────────────
-START_DATE = "2023-01-01"
-END_DATE = "2025-12-31"
+import numpy as np
+import pandas as pd
+from scipy.interpolate import UnivariateSpline
 
-OUTPUT_DIR = Path(__file__).parent.parent / "data"
+from src.pipeline_config import END_DATE, LOCATIONS, OUTPUT_DIR, START_DATE
+
 SATELLITE_FILE = OUTPUT_DIR / "real_ndvi_lst.csv"
 WEATHER_FILE = OUTPUT_DIR / "real_weather.csv"
 SALINITY_FILE = OUTPUT_DIR / "real_salinity.csv"
 OUTPUT_FILE = OUTPUT_DIR / "merged_final.csv"
 
+LOGGER = logging.getLogger("saltyseq.merge")
 
-# ── STEP 1: LOAD ALL SOURCES ───────────────────────────────
-def load_sources():
-    """Đọc 3 file CSV từ Script 1, 2, 3."""
-    print("[Step 1] Loading data sources...")
 
-    # Pre-flight: kiểm tra file tồn tại trước khi đọc
-    missing = []
-    if not SATELLITE_FILE.exists():
-        missing.append(f"  • {SATELLITE_FILE.name}  → chạy src/satellite_gee.py trước")
-    if not WEATHER_FILE.exists():
-        missing.append(f"  • {WEATHER_FILE.name}  → chạy src/weather_openmeteo.py trước")
-    if not SALINITY_FILE.exists():
-        missing.append(f"  • {SALINITY_FILE.name}  → chạy src/salinity.py trước")
+def configure_logging() -> None:
+    """Configure logger for script execution."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+    )
+
+
+def _ensure_location_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """Backfill location_id for backward compatibility with legacy files."""
+    out = df.copy()
+    if "location_id" not in out.columns:
+        out["location_id"] = LOCATIONS[0].location_id
+
+    return out
+
+
+def _validate_files_exist(paths: list[Path]) -> None:
+    missing = [path for path in paths if not path.exists()]
     if missing:
-        raise FileNotFoundError(
-            "\n[script4] Thiếu file đầu vào:\n" + "\n".join(missing) +
-            "\n\nChạy lệnh:  python run_pipeline.py  để tự động xử lý đúng thứ tự."
-        )
+        names = "\n".join(f"- {item.name}" for item in missing)
+        raise FileNotFoundError(f"Missing required input files:\n{names}")
 
-    # Satellite (NDVI + LST) — sparse, irregular timestamps
-    df_sat = pd.read_csv(SATELLITE_FILE, parse_dates=['date'])
-    print(f"  Satellite: {len(df_sat)} rows | "
-          f"NDVI valid: {df_sat['ndvi'].notna().sum()} | "
-          f"LST valid: {df_sat['lst'].notna().sum()}")
 
-    # Weather — daily, complete
-    df_weather = pd.read_csv(WEATHER_FILE, parse_dates=['date'])
-    print(f"  Weather:   {len(df_weather)} rows | "
-          f"Missing: {df_weather.isnull().sum().sum()}")
+def load_sources() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Load source CSV files from scripts 1, 2, and 3."""
+    LOGGER.info("Loading source data files.")
+    _validate_files_exist([SATELLITE_FILE, WEATHER_FILE, SALINITY_FILE])
 
-    # Salinity — daily
-    df_salinity = pd.read_csv(SALINITY_FILE, parse_dates=['date'])
-    print(f"  Salinity:  {len(df_salinity)} rows | "
-          f"Mean: {df_salinity['salinity_psu'].mean():.2f} PSU")
+    df_sat = pd.read_csv(SATELLITE_FILE, parse_dates=["date"])
+    df_weather = pd.read_csv(WEATHER_FILE, parse_dates=["date"])
+    df_salinity = pd.read_csv(SALINITY_FILE, parse_dates=["date"])
+
+    df_sat = _ensure_location_columns(df_sat)
+    df_weather = _ensure_location_columns(df_weather)
+    df_salinity = _ensure_location_columns(df_salinity)
+
+    for df in [df_sat, df_weather, df_salinity]:
+        df["date"] = pd.to_datetime(df["date"]).dt.normalize()
+
+    LOGGER.info(
+        "Loaded rows | satellite=%s weather=%s salinity=%s",
+        len(df_sat),
+        len(df_weather),
+        len(df_salinity),
+    )
 
     return df_sat, df_weather, df_salinity
 
 
-# ── STEP 2: TEMPORAL ALIGNMENT ─────────────────────────────
-def align_to_daily(df_sat):
-    """
-    ┌─────────────────────────────────────────────────────────┐
-    │ SPATIO-TEMPORAL ALIGNMENT: Satellite → Daily Grid       │
-    │                                                         │
-    │ Tại sao cần alignment?                                  │
-    │ • NDVI có ~37-50 data points trong 365 ngày             │
-    │ • LST có ~15-25 data points (Landsat revisit dài hơn)   │
-    │ • Weather/Salinity có 365 data points                   │
-    │                                                         │
-    │ Chiến lược:                                             │
-    │ 1. Reindex satellite lên daily grid                     │
-    │ 2. Linear interpolation (giới hạn 15 ngày liên tục)    │
-    │    → Linear > Cubic vì ít artifacts ở biên, robust hơn  │
-    │ 3. Đánh dấu cột is_observed để phân biệt real vs interp│
-    │ 4. Forward + Backward fill cho edges                    │
-    └─────────────────────────────────────────────────────────┘
-    """
-    print("\n[Step 2] Temporal alignment: Satellite → Daily grid...")
+def _missing_run_lengths(series: pd.Series) -> pd.Series:
+    """Compute consecutive missing length indicator for each missing point."""
+    is_missing = series.isna()
+    group = (~is_missing).cumsum()
+    lengths = is_missing.groupby(group).cumsum()
+    return lengths.where(is_missing, 0).astype(int)
 
-    # Tạo daily date index
-    daily_dates = pd.date_range(start=START_DATE, end=END_DATE, freq='D')
-    df_daily = pd.DataFrame({'date': daily_dates})
 
-    # Merge satellite (sẽ có nhiều NaN)
-    df_daily = df_daily.merge(df_sat, on='date', how='left')
+def _apply_edge_fill(series: pd.Series) -> tuple[pd.Series, pd.Series]:
+    """Fill only edge NaNs (before first valid or after last valid)."""
+    out = series.copy()
+    marker = pd.Series(False, index=out.index)
 
-    # Đánh dấu observed vs interpolated
-    df_daily['ndvi_is_observed'] = df_daily['ndvi'].notna().astype(int)
-    df_daily['lst_is_observed'] = df_daily['lst'].notna().astype(int)
+    valid_idx = np.flatnonzero(out.notna().to_numpy())
+    if len(valid_idx) == 0:
+        return out, marker
 
-    # Count before interpolation
-    ndvi_obs = df_daily['ndvi_is_observed'].sum()
-    lst_obs = df_daily['lst_is_observed'].sum()
+    first_valid = valid_idx[0]
+    last_valid = valid_idx[-1]
+    edge_mask = out.isna() & ((out.index <= first_valid) | (out.index >= last_valid))
 
-    # Linear interpolation (limit 15 ngày — beyond that gap is too large)
-    df_daily['ndvi'] = df_daily['ndvi'].interpolate(
-        method='linear', limit=15, limit_direction='both'
+    if edge_mask.any():
+        edge_filled = out.ffill().bfill()
+        out.loc[edge_mask] = edge_filled.loc[edge_mask]
+        marker.loc[edge_mask] = True
+
+    return out, marker
+
+
+def _apply_spline_fill(
+    dates: pd.Series,
+    series: pd.Series,
+    target_mask: pd.Series,
+) -> tuple[pd.Series, pd.Series]:
+    """Apply cubic spline interpolation on target points only."""
+    out = series.copy()
+    marker = pd.Series(False, index=series.index)
+
+    obs_mask = out.notna()
+    if obs_mask.sum() < 4 or target_mask.sum() == 0:
+        return out, marker
+
+    x_all = dates.map(pd.Timestamp.toordinal).to_numpy(dtype=float)
+    x_obs = x_all[obs_mask.to_numpy()]
+    y_obs = out.loc[obs_mask].to_numpy(dtype=float)
+
+    try:
+        spline = UnivariateSpline(x_obs, y_obs, k=3, s=0)
+        x_target = x_all[target_mask.to_numpy()]
+        y_pred = spline(x_target)
+        out.loc[target_mask] = y_pred
+        marker.loc[target_mask] = True
+    except Exception as exc:  # noqa: BLE001
+        LOGGER.warning("Spline interpolation skipped due to error: %s", exc)
+
+    return out, marker
+
+
+def align_to_daily(df_sat: pd.DataFrame) -> pd.DataFrame:
+    """Align satellite panel to daily grid per location with audited interpolation."""
+    LOGGER.info("Aligning satellite data to daily panel grid.")
+
+    daily_dates = pd.date_range(start=START_DATE, end=END_DATE, freq="D")
+    cutoff_spline = pd.Timestamp("2017-12-31")
+
+    frames: list[pd.DataFrame] = []
+
+    for location in LOCATIONS:
+        sat_loc = df_sat[df_sat["location_id"] == location.location_id].copy()
+        sat_loc = sat_loc.sort_values("date").drop_duplicates(subset=["date"], keep="first")
+
+        grid = pd.DataFrame({"date": daily_dates})
+        merged = grid.merge(sat_loc, on="date", how="left")
+
+        merged["location_id"] = location.location_id
+        merged["location_name"] = location.location_name
+        merged["lat"] = location.lat
+        merged["lon"] = location.lon
+        merged["distance_to_estuary_km"] = location.distance_to_estuary_km
+
+        if "ndvi_source" not in merged.columns:
+            merged["ndvi_source"] = "none"
+        merged["ndvi_source"] = merged["ndvi_source"].fillna("none")
+
+        ndvi_original = merged["ndvi"].astype(float)
+        lst_original = merged["lst"].astype(float)
+
+        merged["ndvi_is_observed"] = ndvi_original.notna().astype(int)
+        merged["lst_is_observed"] = lst_original.notna().astype(int)
+        merged["ndvi_gap_days"] = _missing_run_lengths(ndvi_original)
+
+        ndvi_method = pd.Series("missing", index=merged.index, dtype="object")
+        ndvi_method.loc[ndvi_original.notna()] = "observed"
+
+        ndvi_linear = ndvi_original.interpolate(
+            method="linear",
+            limit=15,
+            limit_direction="both",
+        )
+        linear_mask = ndvi_original.isna() & ndvi_linear.notna()
+        ndvi_method.loc[linear_mask] = "linear"
+
+        spline_target = ndvi_linear.isna() & (merged["date"] <= cutoff_spline)
+        ndvi_spline, spline_mask = _apply_spline_fill(
+            dates=merged["date"],
+            series=ndvi_linear,
+            target_mask=spline_target,
+        )
+        ndvi_method.loc[spline_mask] = "spline"
+
+        ndvi_edge, edge_mask = _apply_edge_fill(ndvi_spline)
+        ndvi_method.loc[edge_mask] = "edge_fill"
+
+        merged["ndvi"] = ndvi_edge.clip(-0.2, 1.0)
+        merged["ndvi_interp_method"] = ndvi_method
+
+        lst_method = pd.Series("missing", index=merged.index, dtype="object")
+        lst_method.loc[lst_original.notna()] = "observed"
+
+        lst_linear = lst_original.interpolate(
+            method="linear",
+            limit=15,
+            limit_direction="both",
+        )
+        lst_linear_mask = lst_original.isna() & lst_linear.notna()
+        lst_method.loc[lst_linear_mask] = "linear"
+
+        lst_edge, lst_edge_mask = _apply_edge_fill(lst_linear)
+        lst_method.loc[lst_edge_mask] = "edge_fill"
+
+        merged["lst"] = lst_edge
+        merged["lst_interp_method"] = lst_method
+
+        frames.append(merged)
+
+        LOGGER.info(
+            "Aligned %s | ndvi observed=%s, linear=%s, spline=%s, edge=%s",
+            location.location_id,
+            int((ndvi_method == "observed").sum()),
+            int((ndvi_method == "linear").sum()),
+            int((ndvi_method == "spline").sum()),
+            int((ndvi_method == "edge_fill").sum()),
+        )
+
+    df_daily = pd.concat(frames, ignore_index=True)
+    return df_daily.sort_values(["location_id", "date"]).reset_index(drop=True)
+
+
+def merge_all(
+    df_daily_sat: pd.DataFrame,
+    df_weather: pd.DataFrame,
+    df_salinity: pd.DataFrame,
+) -> pd.DataFrame:
+    """Merge panel datasets using composite key (location_id, date)."""
+    LOGGER.info("Merging aligned satellite, weather, and salinity panel data.")
+
+    weather_cols = [
+        "location_id",
+        "date",
+        "temp_max",
+        "temp_min",
+        "temp_mean",
+        "precipitation",
+        "rain",
+        "et0",
+        "radiation",
+        "wind_max",
+        "soil_moisture_surface",
+        "soil_moisture_deep",
+        "soil_temp",
+    ]
+    weather_cols = [col for col in weather_cols if col in df_weather.columns]
+
+    salinity_cols = ["location_id", "date", "salinity_psu", "precip_7d_mm", "salinity_source"]
+    salinity_cols = [col for col in salinity_cols if col in df_salinity.columns]
+
+    merged = df_daily_sat.merge(
+        df_weather[weather_cols],
+        on=["location_id", "date"],
+        how="inner",
     )
-    df_daily['lst'] = df_daily['lst'].interpolate(
-        method='linear', limit=15, limit_direction='both'
+    merged = merged.merge(
+        df_salinity[salinity_cols],
+        on=["location_id", "date"],
+        how="inner",
     )
 
-    # Forward + backward fill cho remaining edge NaN
-    df_daily['ndvi'] = df_daily['ndvi'].ffill().bfill()
-    df_daily['lst'] = df_daily['lst'].ffill().bfill()
+    if merged.duplicated(subset=["location_id", "date"]).any():
+        raise ValueError("Duplicate keys detected after merge on location_id + date.")
 
-    total_days = len(df_daily)
-    ndvi_interp = total_days - ndvi_obs
-    lst_interp = total_days - lst_obs
-    print(f"  NDVI: {ndvi_obs} observed + {ndvi_interp} interpolated = {total_days} daily")
-    print(f"  LST:  {lst_obs} observed + {lst_interp} interpolated = {total_days} daily")
+    LOGGER.info(
+        "Merged output rows=%s cols=%s locations=%s",
+        len(merged),
+        merged.shape[1],
+        merged["location_id"].nunique(),
+    )
 
-    return df_daily
-
-
-# ── STEP 3: MERGE ALL SOURCES ──────────────────────────────
-def merge_all(df_daily_sat, df_weather, df_salinity):
-    """
-    Merge 3 nguồn dữ liệu trên cột Date.
-    Inner join: chỉ giữ ngày mà CẢ 3 nguồn đều có dữ liệu.
-    """
-    print("\n[Step 3] Merging all sources on Date column...")
-
-    # Merge satellite (daily aligned) với weather
-    df = df_daily_sat.merge(df_weather, on='date', how='inner')
-
-    # Merge với salinity (chỉ lấy salinity_psu)
-    sal_cols = ['date', 'salinity_psu']
-    if 'precip_7d_mm' in df_salinity.columns:
-        sal_cols.append('precip_7d_mm')
-    df = df.merge(df_salinity[sal_cols], on='date', how='inner')
-
-    print(f"  Merged: {df.shape[0]} rows × {df.shape[1]} columns")
-    print(f"  Date range: {df['date'].min().date()} → {df['date'].max().date()}")
-
-    return df
+    return merged
 
 
-# ── STEP 4: FEATURE ENGINEERING BASIC ─────────────────────────────
-def engineer_features(df):
-    """
-    Tạo các features cơ bản cho Anomaly Detection & Pattern Mining.
-
-    ┌─────────────────────────────────────────────────────────┐
-    │ FEATURE GROUPS:                                         │
-    │                                                         │
-    │ A. Temporal: DOY, month, season, cyclical encoding      │
-    │ B. Rolling: 7-day avg temp, 7-day avg NDVI, etc.        │
-    │ C. Lag: NDVI(t-1), NDVI(t-7), salinity(t-1)            │
-    │ D. Derived: Days_Without_Rain, moisture_deficit          │
-    │ E. Anomaly baseline: Z-score NDVI, salinity threshold   │
-    └─────────────────────────────────────────────────────────┘
-    """
-    print("\n[Step 4] Feature engineering...")
-    df = df.copy()
-
-    # ── A. TEMPORAL FEATURES ──
-    df['day_of_year'] = df['date'].dt.dayofyear
-    df['month'] = df['date'].dt.month
-    df['week'] = df['date'].dt.isocalendar().week.astype(int)
-
-    # Mùa vụ: Mùa khô (11-4) vs Mùa mưa (5-10)
-    df['season'] = df['month'].apply(lambda m: 'dry' if m in [11,12,1,2,3,4] else 'wet')
-    df['is_dry_season'] = (df['season'] == 'dry').astype(int)
-
-    # Cyclical encoding (để model hiểu tháng 12 gần tháng 1)
-    df['month_sin'] = np.sin(2 * np.pi * df['month'] / 12)
-    df['month_cos'] = np.cos(2 * np.pi * df['month'] / 12)
-    n_temporal = 7
-    print(f"  A. Temporal features: +{n_temporal}")
-
-    # ── B. ROLLING STATISTICS (7-day windows) ──
-    df['temp_7d_avg'] = df['temp_mean'].rolling(7, min_periods=1).mean()
-    df['ndvi_7d_avg'] = df['ndvi'].rolling(7, min_periods=1).mean()
-    df['precip_7d_sum'] = df['precipitation'].rolling(7, min_periods=1).sum()
-    df['salinity_7d_avg'] = df['salinity_psu'].rolling(7, min_periods=1).mean()
-    df['lst_7d_avg'] = df['lst'].rolling(7, min_periods=1).mean()
-    df['soil_moisture_7d_avg'] = df['soil_moisture_surface'].rolling(7, min_periods=1).mean()
-    n_rolling = 6
-    print(f"  B. Rolling statistics: +{n_rolling}")
-
-    # ── C. LAG FEATURES (cho PrefixSpan sequential analysis) ──
-    for lag in [1, 3, 7]:
-        df[f'ndvi_lag_{lag}'] = df['ndvi'].shift(lag)
-        df[f'salinity_lag_{lag}'] = df['salinity_psu'].shift(lag)
-        df[f'precip_lag_{lag}'] = df['precipitation'].shift(lag)
-    n_lag = 9
-    print(f"  C. Lag features: +{n_lag}")
-
-    # ── D. DERIVED FEATURES ──
-    # Days_Without_Rain: bộ đếm số ngày liên tục không mưa (>= 1mm)
-    rain_flag = (df['precipitation'] >= 1.0).astype(int)
-    days_no_rain = []
-    counter = 0
-    for has_rain in rain_flag:
-        if has_rain:
-            counter = 0
+def _days_without_rain(series: pd.Series) -> pd.Series:
+    """Count consecutive days with rainfall below 1 mm."""
+    count = 0
+    result: list[int] = []
+    for rain in series.fillna(0.0):
+        if rain >= 1.0:
+            count = 0
         else:
-            counter += 1
-        days_no_rain.append(counter)
-    df['days_without_rain'] = days_no_rain
+            count += 1
+        result.append(count)
 
-    # Moisture deficit: ET0 - Precipitation (dương = thiếu nước)
-    df['moisture_deficit'] = df['et0'] - df['precipitation']
-    df['moisture_deficit_7d'] = df['moisture_deficit'].rolling(7, min_periods=1).sum()
+    return pd.Series(result, index=series.index)
 
-    # NDVI rate of change
-    df['ndvi_diff'] = df['ndvi'].diff()
-    df['ndvi_pct_change'] = df['ndvi'].pct_change()
 
-    # LST-NDVI interaction (nhiệt + cây trồng)
-    df['lst_ndvi_ratio'] = df['lst'] / df['ndvi'].clip(lower=0.1)
+def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
+    """Create panel-aware temporal, rolling, lag, and anomaly features."""
+    LOGGER.info("Engineering panel features.")
+    out = df.copy().sort_values(["location_id", "date"]).reset_index(drop=True)
 
-    # Salinity-precipitation interaction
-    df['salinity_precip_ratio'] = df['salinity_psu'] / df['precipitation'].clip(lower=0.1)
+    out["day_of_year"] = out["date"].dt.dayofyear
+    out["month"] = out["date"].dt.month
+    out["week"] = out["date"].dt.isocalendar().week.astype(int)
+    out["season"] = out["month"].apply(lambda m: "dry" if m in [11, 12, 1, 2, 3, 4] else "wet")
+    out["is_dry_season"] = (out["season"] == "dry").astype(int)
+    out["month_sin"] = np.sin(2 * np.pi * out["month"] / 12)
+    out["month_cos"] = np.cos(2 * np.pi * out["month"] / 12)
 
-    n_derived = 7
-    print(f"  D. Derived features: +{n_derived}")
+    grp = out.groupby("location_id", group_keys=False)
 
-    # ── E. ANOMALY BASELINE (Z-score) ──
-    # NDVI anomaly: giá trị bất thường so với monthly mean
-    monthly_stats = df.groupby('month')['ndvi'].agg(['mean', 'std'])
-    df = df.merge(
-        monthly_stats.rename(columns={'mean': 'ndvi_monthly_mean', 'std': 'ndvi_monthly_std'}),
-        left_on='month', right_index=True
+    out["temp_7d_avg"] = grp["temp_mean"].transform(lambda s: s.rolling(7, min_periods=1).mean())
+    out["ndvi_7d_avg"] = grp["ndvi"].transform(lambda s: s.rolling(7, min_periods=1).mean())
+    out["precip_7d_sum"] = grp["precipitation"].transform(lambda s: s.rolling(7, min_periods=1).sum())
+    out["salinity_7d_avg"] = grp["salinity_psu"].transform(lambda s: s.rolling(7, min_periods=1).mean())
+    out["lst_7d_avg"] = grp["lst"].transform(lambda s: s.rolling(7, min_periods=1).mean())
+    out["soil_moisture_7d_avg"] = grp["soil_moisture_surface"].transform(
+        lambda s: s.rolling(7, min_periods=1).mean()
     )
-    df['ndvi_zscore'] = (df['ndvi'] - df['ndvi_monthly_mean']) / df['ndvi_monthly_std'].clip(lower=0.01)
-    df['is_ndvi_anomaly'] = (df['ndvi_zscore'].abs() > 2.0).astype(int)
 
-    # Salinity anomaly (> 4 PSU trong mùa mưa = bất thường)
-    df['is_salinity_spike'] = (
-        (df['salinity_psu'] > 10) & (df['is_dry_season'] == 0)
+    for lag in [1, 3, 7]:
+        out[f"ndvi_lag_{lag}"] = grp["ndvi"].shift(lag)
+        out[f"salinity_lag_{lag}"] = grp["salinity_psu"].shift(lag)
+        out[f"precip_lag_{lag}"] = grp["precipitation"].shift(lag)
+
+    out["days_without_rain"] = grp["precipitation"].transform(_days_without_rain)
+    out["moisture_deficit"] = out["et0"] - out["precipitation"]
+    out["moisture_deficit_7d"] = grp["moisture_deficit"].transform(
+        lambda s: s.rolling(7, min_periods=1).sum()
+    )
+
+    out["ndvi_diff"] = grp["ndvi"].diff()
+    out["ndvi_pct_change"] = grp["ndvi"].pct_change()
+
+    out["lst_ndvi_ratio"] = out["lst"] / out["ndvi"].clip(lower=0.1)
+    out["salinity_precip_ratio"] = out["salinity_psu"] / out["precipitation"].clip(lower=0.1)
+
+    month_mean = out.groupby(["location_id", "month"])["ndvi"].transform("mean")
+    month_std = out.groupby(["location_id", "month"])["ndvi"].transform("std")
+    out["ndvi_zscore"] = (out["ndvi"] - month_mean) / month_std.clip(lower=0.01)
+    out["is_ndvi_anomaly"] = (out["ndvi_zscore"].abs() > 2.0).astype(int)
+
+    out["is_salinity_spike"] = (
+        (out["salinity_psu"] > 10) & (out["is_dry_season"] == 0)
     ).astype(int)
 
-    # Crop stress composite: NDVI giảm + Salinity tăng + Soil khô
-    df['crop_stress_score'] = (
-        (1 - df['ndvi'] / df['ndvi'].max()) * 0.4 +
-        (df['salinity_psu'] / df['salinity_psu'].max()) * 0.4 +
-        (1 - df['soil_moisture_surface'] / df['soil_moisture_surface'].max()) * 0.2
+    ndvi_max = grp["ndvi"].transform("max").clip(lower=0.01)
+    salinity_max = grp["salinity_psu"].transform("max").clip(lower=0.01)
+    soil_max = grp["soil_moisture_surface"].transform("max").clip(lower=0.01)
+
+    out["crop_stress_score"] = (
+        (1 - out["ndvi"] / ndvi_max) * 0.4
+        + (out["salinity_psu"] / salinity_max) * 0.4
+        + (1 - out["soil_moisture_surface"] / soil_max) * 0.2
     )
 
-    # Cleanup temporary columns
-    df = df.drop(columns=['ndvi_monthly_mean', 'ndvi_monthly_std'], errors='ignore')
-
-    n_anomaly = 4
-    print(f"  E. Anomaly features: +{n_anomaly}")
-
-    return df
+    return out
 
 
-# ── STEP 5: FINAL CLEANUP ──────────────────────────────────
-def final_cleanup(df):
-    """
-    Xử lý NaN còn sót (chủ yếu từ lag/rolling ở đầu chuỗi).
-    Strategy: Forward fill → Backward fill.
-    """
-    print("\n[Step 5] Final cleanup (handle remaining NaN)...")
+def final_cleanup(df: pd.DataFrame) -> pd.DataFrame:
+    """Handle remaining NaNs without cross-location leakage."""
+    LOGGER.info("Running final cleanup.")
+    out = df.copy().sort_values(["location_id", "date"]).reset_index(drop=True)
 
-    missing_before = df.isnull().sum().sum()
+    protected = {
+        "ndvi",
+        "lst",
+        "ndvi_is_observed",
+        "lst_is_observed",
+        "ndvi_gap_days",
+    }
+    numeric_cols = [
+        col
+        for col in out.select_dtypes(include=[np.number]).columns
+        if col not in protected
+    ]
 
-    # Forward fill → backward fill cho numeric columns
-    numeric_cols = df.select_dtypes(include=[np.number]).columns
-    df[numeric_cols] = df[numeric_cols].ffill().bfill()
+    for col in numeric_cols:
+        out[col] = out.groupby("location_id")[col].transform(lambda s: s.ffill().bfill())
 
-    missing_after = df.isnull().sum().sum()
-    print(f"  NaN before: {missing_before} → after: {missing_after}")
+    missing_after = int(out.isna().sum().sum())
+    LOGGER.info("Final missing values after cleanup: %s", missing_after)
 
-    return df
-
-
-# ── STEP 6: DATA PROFILING ─────────────────────────────────
-def profile_output(df):
-    """In thống kê tổng quan cho team review."""
-    print("\n" + "=" * 70)
-    print("  FINAL DATASET PROFILING")
-    print("=" * 70)
-
-    print(f"\nShape: {df.shape[0]} rows × {df.shape[1]} columns")
-    print(f"Date: {df['date'].min().date()} → {df['date'].max().date()}")
-    print(f"Completeness: {(1 - df.isnull().sum().sum() / (df.shape[0] * df.shape[1])) * 100:.2f}%")
-
-    print(f"\n── df.head(5) ──")
-    # Chọn columns quan trọng để hiển thị gọn
-    key_cols = ['date', 'ndvi', 'lst', 'temp_mean', 'precipitation',
-                'soil_moisture_surface', 'salinity_psu',
-                'days_without_rain', 'temp_7d_avg',
-                'ndvi_zscore', 'is_ndvi_anomaly', 'crop_stress_score']
-    display_cols = [c for c in key_cols if c in df.columns]
-    print(df[display_cols].head(5).to_string())
-
-    print(f"\n── df.info() ──")
-    print(f"Dtypes: {df.dtypes.value_counts().to_dict()}")
-    print(f"Memory: {df.memory_usage(deep=True).sum() / 1024:.1f} KB")
-
-    print(f"\n── df.describe() (key features) ──")
-    desc_cols = ['ndvi', 'lst', 'temp_mean', 'precipitation',
-                 'soil_moisture_surface', 'salinity_psu',
-                 'days_without_rain', 'crop_stress_score']
-    desc_cols = [c for c in desc_cols if c in df.columns]
-    print(df[desc_cols].describe().round(4).to_string())
-
-    # Anomaly summary
-    if 'is_ndvi_anomaly' in df.columns:
-        n_anom = df['is_ndvi_anomaly'].sum()
-        print(f"\n── Anomaly Summary ──")
-        print(f"  NDVI anomalies (Z>2): {n_anom} / {len(df)} ({n_anom/len(df)*100:.1f}%)")
-    if 'is_salinity_spike' in df.columns:
-        n_spike = df['is_salinity_spike'].sum()
-        print(f"  Salinity spikes:      {n_spike} / {len(df)} ({n_spike/len(df)*100:.1f}%)")
-
-    # Correlation with crop stress
-    print(f"\n── Top Correlations với crop_stress_score ──")
-    if 'crop_stress_score' in df.columns:
-        numeric = df.select_dtypes(include=[np.number])
-        corr = numeric.corr()['crop_stress_score'].drop('crop_stress_score', errors='ignore')
-        top = corr.abs().sort_values(ascending=False).head(10)
-        for col in top.index:
-            val = corr[col]
-            bar = '█' * int(abs(val) * 20)
-            sign = '+' if val > 0 else '-'
-            print(f"    {col:30s} {sign}{abs(val):.4f} {bar}")
+    return out
 
 
-# ── MAIN ────────────────────────────────────────────────────
-def main():
-    print("=" * 60)
-    print("  Script 4: Merge & Preprocessing Pipeline")
-    print("=" * 60)
+def profile_output(df: pd.DataFrame) -> None:
+    """Print concise profiling summary for review."""
+    LOGGER.info("Profiling merged dataset.")
 
-    OUTPUT_DIR.mkdir(exist_ok=True)
+    total_cells = df.shape[0] * df.shape[1]
+    missing = int(df.isna().sum().sum())
+    completeness = 100.0 * (1.0 - (missing / total_cells))
 
-    # 1. Load
+    LOGGER.info(
+        "Shape=%s x %s | locations=%s | range=%s -> %s | completeness=%.2f%%",
+        df.shape[0],
+        df.shape[1],
+        df["location_id"].nunique(),
+        df["date"].min().date(),
+        df["date"].max().date(),
+        completeness,
+    )
+
+    method_counts = (
+        df["ndvi_interp_method"].value_counts(dropna=False).sort_index().to_dict()
+        if "ndvi_interp_method" in df.columns
+        else {}
+    )
+    LOGGER.info("NDVI interpolation methods: %s", method_counts)
+
+
+def main() -> pd.DataFrame:
+    """Execute merge and feature engineering pipeline."""
+    configure_logging()
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    LOGGER.info("Starting merge preprocessing pipeline.")
+    LOGGER.info("Date range target: %s -> %s", START_DATE, END_DATE)
+
     df_sat, df_weather, df_salinity = load_sources()
-
-    # 2. Temporal alignment (satellite → daily)
     df_daily_sat = align_to_daily(df_sat)
+    df_merged = merge_all(df_daily_sat, df_weather, df_salinity)
+    df_features = engineer_features(df_merged)
+    df_final = final_cleanup(df_features)
 
-    # 3. Merge all
-    df = merge_all(df_daily_sat, df_weather, df_salinity)
+    if df_final.duplicated(subset=["location_id", "date"]).any():
+        raise ValueError("Duplicate keys in final dataset for location_id + date.")
 
-    # 4. Feature engineering
-    df = engineer_features(df)
+    df_final.to_csv(OUTPUT_FILE, index=False)
+    LOGGER.info("Saved merged panel dataset: %s", OUTPUT_FILE)
 
-    # 5. Final cleanup
-    df = final_cleanup(df)
-
-    # 6. Save
-    df.to_csv(OUTPUT_FILE, index=False)
-    print(f"\n[✓] Đã lưu: {OUTPUT_FILE}")
-
-    # 7. Profile
-    profile_output(df)
-
-    print(f"\n{'='*60}")
-    print(f"  PIPELINE HOÀN TẤT — Ready for PrefixSpan + XGBoost")
-    print(f"{'='*60}")
-
-    return df
+    profile_output(df_final)
+    return df_final
 
 
 if __name__ == "__main__":

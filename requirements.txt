@@ -9,6 +9,7 @@
 # --- Core Data Processing ---
 pandas>=2.0.0
 numpy>=1.24.0
+scipy>=1.11.0
 
 # --- Google Earth Engine ---
 # Requires: ee.Authenticate() (browser, one-time) +

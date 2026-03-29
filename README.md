@@ -1,66 +1,68 @@
-# SaltySeq — Du bao Stress Cay Trong do Xam Nhap Man
+# SaltySeq - Du bao Stress Cay Trong do Xam Nhap Man
 
-**Mon hoc:** CS313 - Data Mining  
-**Vung nghien cuu:** Ben Tre, Dong bang song Cuu Long, Viet Nam  
-**Giai doan du lieu:** 2023-01-01 -> 2025-12-31  
-**Toa do:** 10.24N, 106.37E  
+Du an PoC cho bai toan khai pha du lieu va phat hien bat thuong trong nong nghiep vung ven bien Ben Tre.
 
----
+## Thong tin nhanh
 
-## Mo ta du an
+- Mon hoc: CS313 - Data Mining
+- Vung nghien cuu: Ben Tre, Dong bang song Cuu Long, Viet Nam
+- Pham vi thoi gian da lam giau: 2015-01-01 den 2022-12-31
+- Cau truc du lieu hien tai: panel time-series (5 location x 2922 ngay = 14610 dong)
+- Khoa chinh du lieu: location_id + date
 
-SaltySeq la mot PoC (Proof of Concept) ung dung khai pha du lieu va phat hien bat thuong de theo doi tac dong cua xam nhap man len suc khoe cay trong tai vung DBSCL. Du an tich hop 3 nguon du lieu:
+## Trang thai du lieu sau lam giau (tom tat)
 
-| Nguon | Bien | Tan suat |
+Cap nhat theo output pipeline hien tai trong thu muc data:
+
+| Tep | So dong | So cot | So location | Khoa location_id+date |
+|---|---:|---:|---:|---|
+| real_ndvi_lst.csv | 3135 | 9 | 5 | unique |
+| real_weather.csv | 14610 | 17 | 5 | unique |
+| real_salinity.csv | 14610 | 9 | 5 | unique |
+| merged_final.csv | 14610 | 61 | 5 | unique |
+
+Chi so chat luong du lieu merged_final.csv:
+
+- Do day du tong the: 99.5989% (missing trung binh 0.4011% tren toan bo o du lieu)
+- Ti le NDVI quan sat truc tiep: 21.44% (con lai duoc noi suy co kiem soat)
+- Ti le LST quan sat truc tiep: 3.95% (con lai duoc noi suy co kiem soat)
+- Nguon salinity hien tai: synthetic_proxy (100%)
+
+## Nguon du lieu
+
+| Nguon | Bien chinh | Tan suat |
 |---|---|---|
-| Google Earth Engine (Landsat 8/9) | NDVI, LST | ~5-16 ngay |
-| Open-Meteo ERA5-Land | Nhiet do, Mua, Do am dat | Hang ngay |
-| Proxy tong hop | Do man (PSU) | Hang ngay |
+| Google Earth Engine | NDVI, LST | Khong deu theo ve tinh |
+| Open-Meteo ERA5-Land | Nhiet do, mua, ET0, gio, buc xa, do am dat | Hang ngay |
+| Proxy tong hop | Salinity PSU | Hang ngay |
 
----
-
-## Cau truc thu muc
+## Pipeline
 
 ```
-poc_saltyseq/
-|- run_pipeline.py
-|- requirements.txt
-|- src/
-|  |- satellite_gee.py
-|  |- weather_openmeteo.py
-|  |- salinity.py
-|  |- merge_preprocess.py
-|- notebooks/
-|  |- EDA_SaltySeq_Raw_Data.ipynb
-|- reports/
-|  |- generate_report.py
-|  |- BAOCAT_TIENXULY.md
-|  |- DATASOURCES_QUICKREF.md
-|- data/
-|  |- real_ndvi_lst.csv
-|  |- real_weather.csv
-|  |- real_salinity.csv
-|  |- merged_final.csv
-```
-
----
-
-## Cach chay
-
-```bash
-pip install -r requirements.txt
 python run_pipeline.py
 ```
 
-Neu can xac thuc GEE lan dau:
+Thu tu xu ly:
 
-```bash
+1. src/satellite_gee.py -> Thu thap NDVI/LST theo location
+2. src/weather_openmeteo.py -> Thu thap weather/soil daily theo location
+3. src/salinity.py -> Tao salinity theo location (real optional, fallback proxy)
+4. src/merge_preprocess.py -> Merge + feature engineering + xuat merged_final.csv
+
+Neu chay GEE lan dau:
+
+```
 python -c "import ee; ee.Authenticate()"
 ```
 
----
+## Dau ra phuc vu modeling
 
-## Ket qua chinh
+merged_final.csv da san sang cho cac buoc tiep theo:
 
-- **merged_final.csv**: 1096 ban ghi x 52 dac trung, san sang cho PrefixSpan va XGBoost.
-- **EDA**: Phan tich missing pattern NDVI, tuong quan Spearman, ACF/PACF va seasonal decomposition.
+- Sequential pattern mining (PrefixSpan) voi du lieu panel theo location
+- Supervised learning (vd. XGBoost) voi bo feature da xu ly theo nhom thoi gian, lag, rolling va stress
+
+Luu y:
+
+- Chua su dung ky thuat sinh du lieu tong hop kieu SMOTE/ADASYN cho time-series de tranh leakage.
+- Khuyen nghi danh gia model bang TimeSeriesSplit hoac backtesting theo moc thoi gian.

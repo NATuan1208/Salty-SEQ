@@ -118,9 +118,15 @@ def _run_step(step: dict, python_exe: str = sys.executable) -> bool:
         print(f"  [ERROR] Không tìm thấy: {step['script']}")
         return False
 
+    command = [python_exe, str(script_path)]
+    # Chạy theo module để giữ package context cho import `src.*`.
+    if step["script"].startswith("src/") and step["script"].endswith(".py"):
+        module_name = step["script"][:-3].replace("/", ".")
+        command = [python_exe, "-m", module_name]
+
     start = time.time()
     result = subprocess.run(
-        [python_exe, str(script_path)],
+        command,
         capture_output=False,   # để output hiển thị trực tiếp
         cwd=str(BASE_DIR),
     )

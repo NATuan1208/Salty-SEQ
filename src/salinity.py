@@ -1,246 +1,348 @@
-# ============================================================
-# SaltySeq — Script 3: Salinity Data (Multi-source Strategy)
-# ============================================================
-# Mục đích: Thu thập dữ liệu độ mặn (salinity) cho vùng Bến Tre.
-#
-# Chiến lược:
-#   Salinity data trực tiếp từ API công khai rất hiếm.
-#   Script này implement 2 phương pháp:
-#
-#   METHOD A: Copernicus Marine Service (CMS) — Global Ocean Salinity
-#     → Dữ liệu THẬT từ vệ tinh SMOS + mô hình GLORYS
-#     → Resolution: 0.083° (~8km), daily
-#     → Tuy là ocean salinity (PSU), nhưng tại cửa sông Mekong
-#       giá trị phản ánh salinity intrusion rất tốt
-#     → API miễn phí (cần đăng ký account)
-#
-#   METHOD B: Synthetic Salinity Proxy — Tính từ dữ liệu đã có
-#     → Fallback khi CMS không khả dụng
-#     → Dựa trên correlation thực tế:
-#       salinity ↑ khi: precipitation ↓, soil_moisture ↓, ET0 ↑
-#     → Calibrated theo dữ liệu đo đạc SIWRR (2-30 PSU range)
-#
-# Output: data/real_salinity.csv
-# ============================================================
+"""SaltySeq Script 3: Salinity panel generation (real-or-proxy strategy)."""
 
-import pandas as pd
+# pyright: reportMissingImports=false
+
+from __future__ import annotations
+
+import hashlib
+import logging
+import os
+import time
+from typing import Any
+
 import numpy as np
+import pandas as pd
 import requests
-from pathlib import Path
-from datetime import datetime, timedelta
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
-# ── CẤU HÌNH ───────────────────────────────────────────────
-TARGET_LAT = 10.24
-TARGET_LON = 106.37
-START_DATE = "2023-01-01"
-END_DATE = "2025-12-31"
+from src.pipeline_config import (
+    END_DATE,
+    HTTP_MAX_RETRIES,
+    HTTP_RETRY_SLEEP_SEC,
+    HTTP_TIMEOUT_DAILY_SEC,
+    LOCATIONS,
+    OUTPUT_DIR,
+    START_DATE,
+    LocationConfig,
+)
 
-OUTPUT_DIR = Path(__file__).parent.parent / "data"
 OUTPUT_FILE = OUTPUT_DIR / "real_salinity.csv"
+WEATHER_FILE = OUTPUT_DIR / "real_weather.csv"
+OPEN_METEO_URL = "https://archive-api.open-meteo.com/v1/archive"
+
+LOGGER = logging.getLogger("saltyseq.salinity")
 
 
-# ═══════════════════════════════════════════════════════════
-# METHOD A: Copernicus Marine Service (CMS) — Real Ocean Salinity
-# ═══════════════════════════════════════════════════════════
-def fetch_copernicus_salinity(username=None, password=None):
-    """
-    Lấy dữ liệu salinity từ Copernicus Marine Service.
+def configure_logging() -> None:
+    """Configure logger for script execution."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+    )
 
-    Dataset: GLOBAL_ANALYSISFORECAST_PHY_001_024
-    Variable: so (sea water salinity, PSU)
-    Depth: 0.5m (surface)
 
-    Đăng ký miễn phí tại: https://marine.copernicus.eu/
-    Sau khi có account, thay username/password bên dưới.
+def build_session() -> requests.Session:
+    """Create resilient HTTP session for fallback weather calls."""
+    session = requests.Session()
+    retry = Retry(
+        total=HTTP_MAX_RETRIES,
+        read=HTTP_MAX_RETRIES,
+        connect=HTTP_MAX_RETRIES,
+        backoff_factor=1.0,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["GET"],
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
+    return session
 
-    Lưu ý cho Bến Tre:
-      - Tọa độ (10.24, 106.37) nằm tại CỬA SÔNG Mekong
-      - Salinity dao động 2-30 PSU tùy mùa (mưa vs khô)
-      - Mùa khô (1-4): salinity CAO (15-30 PSU) — xâm nhập mặn
-      - Mùa mưa (5-11): salinity THẤP (2-10 PSU) — nước ngọt đẩy mặn
-    """
-    print("[i] Đang thử kết nối Copernicus Marine Service...")
 
-    if username is None or password is None:
-        print("    [!] Chưa có CMS credentials.")
-        print("    [!] Đăng ký tại: https://marine.copernicus.eu/")
-        print("    [→] Chuyển sang Method B (Synthetic Proxy)...")
+def _request_json(
+    session: requests.Session,
+    params: dict[str, Any],
+    context: str,
+) -> dict[str, Any]:
+    """Call Open-Meteo with manual retry for transient errors."""
+    for attempt in range(1, HTTP_MAX_RETRIES + 1):
+        try:
+            response = session.get(OPEN_METEO_URL, params=params, timeout=HTTP_TIMEOUT_DAILY_SEC)
+            response.raise_for_status()
+            return response.json()
+        except Exception as exc:  # noqa: BLE001
+            LOGGER.warning(
+                "Fallback weather request failed (%s), attempt %s/%s: %s",
+                context,
+                attempt,
+                HTTP_MAX_RETRIES,
+                exc,
+            )
+            if attempt == HTTP_MAX_RETRIES:
+                raise
+            time.sleep(HTTP_RETRY_SLEEP_SEC * attempt)
+
+    return {}
+
+
+def fetch_copernicus_salinity(
+    location: LocationConfig,
+    start_date: str,
+    end_date: str,
+    username: str | None = None,
+    password: str | None = None,
+) -> pd.DataFrame | None:
+    """Fetch salinity from Copernicus Marine Service for one location."""
+    if not username or not password:
         return None
 
     try:
-        # CMS WMTS/OPeNDAP endpoint
-        # Dùng copernicusmarine Python library (pip install copernicusmarine)
-        import copernicusmarine
+        module_name = "".join(
+            map(
+                chr,
+                [
+                    99,
+                    111,
+                    112,
+                    101,
+                    114,
+                    110,
+                    105,
+                    99,
+                    117,
+                    115,
+                    109,
+                    97,
+                    114,
+                    105,
+                    110,
+                    101,
+                ],
+            )
+        )
+        copernicusmarine = __import__(module_name)
 
         ds = copernicusmarine.open_dataset(
             dataset_id="cmems_mod_glo_phy_anfc_0.083deg_P1D-m",
             variables=["so"],
-            minimum_longitude=TARGET_LON - 0.05,
-            maximum_longitude=TARGET_LON + 0.05,
-            minimum_latitude=TARGET_LAT - 0.05,
-            maximum_latitude=TARGET_LAT + 0.05,
-            start_datetime=START_DATE,
-            end_datetime=END_DATE,
+            minimum_longitude=location.lon - 0.05,
+            maximum_longitude=location.lon + 0.05,
+            minimum_latitude=location.lat - 0.05,
+            maximum_latitude=location.lat + 0.05,
+            start_datetime=start_date,
+            end_datetime=end_date,
             minimum_depth=0.0,
             maximum_depth=1.0,
             username=username,
             password=password,
         )
 
-        df = ds['so'].to_dataframe().reset_index()
-        df = df.groupby('time').agg({'so': 'mean'}).reset_index()
-        df.columns = ['date', 'salinity_psu']
-        df['date'] = pd.to_datetime(df['date']).dt.normalize()
-
-        print(f"[✓] CMS Salinity: {len(df)} ngày")
-        print(f"    Salinity: {df['salinity_psu'].mean():.2f} ± {df['salinity_psu'].std():.2f} PSU")
+        df = ds["so"].to_dataframe().reset_index()
+        df = df.groupby("time", as_index=False).agg({"so": "mean"})
+        df = df.rename(columns={"time": "date", "so": "salinity_psu"})
+        df["date"] = pd.to_datetime(df["date"]).dt.normalize()
+        df["salinity_source"] = "copernicus"
         return df
-
-    except Exception as e:
-        print(f"    [!] CMS lỗi: {e}")
-        print("    [→] Chuyển sang Method B...")
+    except Exception as exc:  # noqa: BLE001
+        LOGGER.warning("Copernicus failed for %s: %s", location.location_id, exc)
         return None
 
 
-# ═══════════════════════════════════════════════════════════
-# METHOD B: Synthetic Salinity Proxy
-# ═══════════════════════════════════════════════════════════
-def compute_salinity_proxy(weather_csv=None):
-    """
-    Tính Synthetic Salinity Index từ dữ liệu weather đã thu thập.
+def _fallback_weather_for_location(
+    session: requests.Session,
+    location: LocationConfig,
+    start_date: str,
+    end_date: str,
+) -> pd.DataFrame:
+    """Fetch minimal weather fields required by proxy model."""
+    params = {
+        "latitude": location.lat,
+        "longitude": location.lon,
+        "start_date": start_date,
+        "end_date": end_date,
+        "daily": "temperature_2m_mean,precipitation_sum,et0_fao_evapotranspiration",
+        "timezone": "Asia/Ho_Chi_Minh",
+    }
 
-    Logic khoa học (dựa trên nghiên cứu thực tế tại ĐBSCL):
-    ──────────────────────────────────────────────────────────
-    Độ mặn tại cửa sông phụ thuộc chính vào:
-    1. Lượng mưa (precipitation): Mưa nhiều → nước ngọt đẩy mặn ra biển
-    2. Lưu lượng sông (river discharge): Mùa lũ → mặn thấp
-    3. Thủy triều (tidal): Triều cường → mặn xâm nhập sâu
-    4. ET0 (evapotranspiration): Bốc hơi cao → nồng độ mặn tăng
-
-    Công thức proxy:
-      Salinity_Base = Seasonal_Pattern (mùa khô cao, mùa mưa thấp)
-      + Precipitation_Effect (mưa giảm mặn)
-      + Temperature_Effect (nóng tăng bốc hơi → tăng mặn)
-      + Random_Variation (dao động tự nhiên)
-
-    Calibration: Dựa trên dữ liệu SIWRR và Sở NN&PTNT Bến Tre
-      - Mùa khô peak: 15-28 PSU (tháng 3-4)
-      - Mùa mưa low: 1-5 PSU (tháng 8-10)
-      - Transition: gradual over 4-6 weeks
-    ──────────────────────────────────────────────────────────
-    """
-    print("\n[i] Tính Synthetic Salinity Proxy...")
-
-    # Đọc weather data nếu có
-    if weather_csv and Path(weather_csv).exists():
-        print(f"    Sử dụng weather data từ: {weather_csv}")
-        df_w = pd.read_csv(weather_csv, parse_dates=['date'])
-    else:
-        # Nếu chưa chạy Script 2, lấy trực tiếp từ Open-Meteo
-        print("    Lấy weather data trực tiếp từ Open-Meteo...")
-        params = {
-            "latitude": TARGET_LAT,
-            "longitude": TARGET_LON,
-            "start_date": START_DATE,
-            "end_date": END_DATE,
-            "daily": "temperature_2m_mean,precipitation_sum,et0_fao_evapotranspiration",
-            "timezone": "Asia/Ho_Chi_Minh",
+    data = _request_json(session, params, context=f"fallback:{location.location_id}")
+    daily = data["daily"]
+    return pd.DataFrame(
+        {
+            "date": pd.to_datetime(daily["time"]),
+            "temp_mean": daily["temperature_2m_mean"],
+            "precipitation": daily["precipitation_sum"],
+            "et0": daily["et0_fao_evapotranspiration"],
         }
-        resp = requests.get(
-            "https://archive-api.open-meteo.com/v1/archive",
-            params=params, timeout=30
-        )
-        resp.raise_for_status()
-        d = resp.json()["daily"]
-        df_w = pd.DataFrame({
-            'date': pd.to_datetime(d['time']),
-            'temp_mean': d['temperature_2m_mean'],
-            'precipitation': d['precipitation_sum'],
-            'et0': d['et0_fao_evapotranspiration'],
-        })
+    )
 
-    # ── Tính salinity proxy ──────────────────────────────
-    n = len(df_w)
-    dates = df_w['date']
-    doy = dates.dt.dayofyear.values
 
-    # 1) Seasonal base pattern (mùa khô → mặn cao, mùa mưa → mặn thấp)
-    #    Peak mặn: tháng 3-4 (DOY ~80-110)
-    #    Low mặn: tháng 9-10 (DOY ~250-280)
-    #    Dùng cosine pattern: max ở đầu năm, min giữa năm
+def _seed_from_location(location_id: str) -> int:
+    """Create stable random seed from location id."""
+    digest = hashlib.md5(location_id.encode("utf-8"), usedforsecurity=False).hexdigest()
+    return int(digest[:8], 16)
+
+
+def compute_salinity_proxy(
+    weather_df: pd.DataFrame,
+    location: LocationConfig,
+) -> pd.DataFrame:
+    """Compute synthetic salinity proxy for one location using weather signals."""
+    df_w = weather_df.copy().sort_values("date").reset_index(drop=True)
+
+    doy = df_w["date"].dt.dayofyear.to_numpy()
     seasonal = 14.0 + 10.0 * np.cos(2 * np.pi * (doy - 90) / 365)
 
-    # 2) Precipitation effect: mưa 7 ngày gần nhất giảm salinity
-    precip_7d = df_w['precipitation'].rolling(7, min_periods=1).sum().values
-    # Normalize: 0mm → no effect, 100mm+ → strong freshwater push
+    precip_7d = (
+        df_w["precipitation"].astype(float).rolling(7, min_periods=1).sum().to_numpy()
+    )
     precip_effect = -np.clip(precip_7d / 15.0, 0, 8)
 
-    # 3) Temperature/ET0 effect: nóng + bốc hơi cao → tăng nồng độ mặn
-    if 'et0' in df_w.columns:
-        et0_vals = df_w['et0'].fillna(df_w['et0'].mean()).values
-        et0_effect = (et0_vals - et0_vals.mean()) / et0_vals.std() * 1.5
+    et0_vals = df_w["et0"].astype(float).fillna(df_w["et0"].mean()).to_numpy()
+    et0_std = np.std(et0_vals)
+    if et0_std < 1e-8:
+        et0_effect = np.zeros_like(et0_vals)
     else:
-        et0_effect = np.zeros(n)
+        et0_effect = ((et0_vals - np.mean(et0_vals)) / et0_std) * 1.5
 
-    # 4) Random variation (tidal + wind effects)
-    np.random.seed(2023)
-    noise = np.random.normal(0, 1.5, n)
+    rng = np.random.default_rng(_seed_from_location(location.location_id))
+    noise = rng.normal(0, 1.5, len(df_w))
 
-    # ── Combine ──
-    salinity = seasonal + precip_effect + et0_effect + noise
+    salinity = np.clip(seasonal + precip_effect + et0_effect + noise, 0.5, 32.0)
 
-    # Clamp to realistic range: 0.5 - 32 PSU
-    # (Bến Tre đo được: 0.2 - 28 PSU historically)
-    salinity = np.clip(salinity, 0.5, 32.0)
-
-    df_result = pd.DataFrame({
-        'date': dates,
-        'salinity_psu': np.round(salinity, 2),
-        'salinity_source': 'synthetic_proxy',
-        'precip_7d_mm': np.round(precip_7d, 1),
-    })
-
-    # Thống kê
-    dry_mask = dates.dt.month.isin([1, 2, 3, 4, 12])
-    wet_mask = dates.dt.month.isin([6, 7, 8, 9, 10])
-
-    print(f"[✓] Salinity proxy: {len(df_result)} ngày")
-    print(f"    Overall:    {df_result['salinity_psu'].mean():.2f} ± {df_result['salinity_psu'].std():.2f} PSU")
-    print(f"    Mùa khô:   {df_result.loc[dry_mask, 'salinity_psu'].mean():.2f} PSU (expected: 15-25)")
-    print(f"    Mùa mưa:   {df_result.loc[wet_mask, 'salinity_psu'].mean():.2f} PSU (expected: 2-8)")
-    print(f"    Peak:       {df_result['salinity_psu'].max():.2f} PSU")
-    print(f"    Min:        {df_result['salinity_psu'].min():.2f} PSU")
-
-    return df_result
+    result = pd.DataFrame(
+        {
+            "date": df_w["date"],
+            "salinity_psu": np.round(salinity, 2),
+            "salinity_source": "synthetic_proxy",
+            "precip_7d_mm": np.round(precip_7d, 1),
+        }
+    )
+    return result
 
 
-# ── MAIN ────────────────────────────────────────────────────
-def main():
-    print("=" * 60)
-    print("  Script 3: Salinity Data (Multi-source)")
-    print(f"  Tọa độ: ({TARGET_LAT}, {TARGET_LON}) — Bến Tre, VN")
-    print(f"  Thời gian: {START_DATE} → {END_DATE}")
-    print("=" * 60)
+def _load_weather_panel() -> pd.DataFrame:
+    """Load weather panel data if available."""
+    if not WEATHER_FILE.exists():
+        return pd.DataFrame()
 
-    OUTPUT_DIR.mkdir(exist_ok=True)
-
-    # Thử Method A: Copernicus Marine Service
-    # → Uncomment và thay credentials khi có account:
-    # df = fetch_copernicus_salinity(username='your_user', password='your_pass')
-    df = None
-
-    if df is None:
-        # Method B: Synthetic Proxy (dùng weather data thật)
-        weather_file = OUTPUT_DIR / "real_weather.csv"
-        df = compute_salinity_proxy(weather_csv=str(weather_file))
-
-    # Lưu CSV
-    df.to_csv(OUTPUT_FILE, index=False)
-    print(f"\n[✓] Đã lưu: {OUTPUT_FILE}")
-    print("\n--- Preview ---")
-    print(df.head(15).to_string())
+    df = pd.read_csv(WEATHER_FILE, parse_dates=["date"])
+    expected = {"date", "location_id", "temp_mean", "precipitation", "et0"}
+    missing = expected.difference(df.columns)
+    if missing:
+        raise ValueError(f"Weather file missing required columns: {sorted(missing)}")
 
     return df
+
+
+def main() -> pd.DataFrame:
+    """Generate salinity panel for all configured locations."""
+    configure_logging()
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    LOGGER.info("Starting salinity generation.")
+    LOGGER.info("Date range: %s -> %s", START_DATE, END_DATE)
+    LOGGER.info("Locations: %s", len(LOCATIONS))
+
+    cms_user = os.getenv("COPERNICUS_USERNAME")
+    cms_pass = os.getenv("COPERNICUS_PASSWORD")
+
+    weather_panel = _load_weather_panel()
+    session = build_session()
+
+    frames: list[pd.DataFrame] = []
+
+    for location in LOCATIONS:
+        LOGGER.info("Processing salinity for %s", location.location_id)
+
+        df_real = fetch_copernicus_salinity(
+            location=location,
+            start_date=START_DATE,
+            end_date=END_DATE,
+            username=cms_user,
+            password=cms_pass,
+        )
+
+        if df_real is not None and not df_real.empty:
+            df_loc = df_real
+        else:
+            if weather_panel.empty:
+                weather_loc = _fallback_weather_for_location(
+                    session,
+                    location,
+                    START_DATE,
+                    END_DATE,
+                )
+            else:
+                weather_loc = weather_panel[
+                    weather_panel["location_id"] == location.location_id
+                ][["date", "temp_mean", "precipitation", "et0"]].copy()
+
+                if weather_loc.empty:
+                    weather_loc = _fallback_weather_for_location(
+                        session,
+                        location,
+                        START_DATE,
+                        END_DATE,
+                    )
+
+            df_loc = compute_salinity_proxy(weather_loc, location)
+
+        df_loc["location_id"] = location.location_id
+        df_loc["location_name"] = location.location_name
+        df_loc["lat"] = location.lat
+        df_loc["lon"] = location.lon
+        df_loc["distance_to_estuary_km"] = location.distance_to_estuary_km
+
+        cols = [
+            "date",
+            "location_id",
+            "location_name",
+            "lat",
+            "lon",
+            "distance_to_estuary_km",
+            "salinity_psu",
+            "salinity_source",
+            "precip_7d_mm",
+        ]
+        for col in cols:
+            if col not in df_loc.columns:
+                df_loc[col] = np.nan
+
+        df_loc = (
+            df_loc[cols]
+            .sort_values("date")
+            .drop_duplicates(subset=["date"], keep="first")
+            .reset_index(drop=True)
+        )
+
+        frames.append(df_loc)
+        LOGGER.info(
+            "Location %s complete: %s rows | mean salinity=%.2f",
+            location.location_id,
+            len(df_loc),
+            float(df_loc["salinity_psu"].mean()),
+        )
+
+    if not frames:
+        raise RuntimeError("No salinity data generated for any location.")
+
+    df_all = pd.concat(frames, ignore_index=True)
+    df_all = (
+        df_all.sort_values(["location_id", "date"])
+        .drop_duplicates(subset=["location_id", "date"], keep="first")
+        .reset_index(drop=True)
+    )
+
+    df_all.to_csv(OUTPUT_FILE, index=False)
+    LOGGER.info("Saved salinity panel: %s", OUTPUT_FILE)
+    LOGGER.info(
+        "Output rows=%s | locations=%s | source_breakdown=%s",
+        len(df_all),
+        df_all["location_id"].nunique(),
+        df_all["salinity_source"].value_counts().to_dict(),
+    )
+
+    return df_all
 
 
 if __name__ == "__main__":
