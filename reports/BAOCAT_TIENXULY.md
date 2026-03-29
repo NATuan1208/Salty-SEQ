@@ -1,7 +1,7 @@
 # BAO CAO TIEN XU LY DU LIEU (CAP NHAT)
 ## Du an SaltySeq - Lam giau du lieu panel da vi tri
 
-> Cap nhat thu cong: 2026-03-29  
+> Cap nhat thu cong: 2026-03-29 (dong bo sau commit threshold calibration)  
 > Pham vi du lieu: 2015-01-01 den 2022-12-31  
 > Khong gian: 5 location tai Ben Tre (panel time-series)
 
@@ -51,16 +51,31 @@ Chi so tong quan tren merged_final.csv:
 
 Chi so label/anomaly:
 
-- is_ndvi_anomaly = 1: 673 ban ghi
+- is_stress_event = 1: 1461 ban ghi (10.00%)
+- Ty le lop 0/1: 13149 / 1461 (xap xi 9:1, dung policy ML)
 - is_salinity_spike = 1: 2308 ban ghi
 - crop_stress_score mean: 0.3655
 - crop_stress_score p95: 0.6951
+
+Phan bo is_stress_event theo nam (%):
+
+- 2015: 0.77 | 2016: 6.34 | 2017: 1.37 | 2018: 7.07
+- 2019: 13.04 | 2020: 21.15 | 2021: 14.96 | 2022: 15.29
+
+Phan bo is_stress_event theo location (%):
+
+- BT_ThanhPhu: 11.40
+- BT_ChauThanh: 9.96
+- BT_GiongTrom: 9.65
+- BT_BaTri: 9.62
+- BT_BinhDai: 9.38
 
 Danh gia nhanh:
 
 - Integrity key dat yeu cau (khong duplicate location_id + date)
 - Temporal continuity dat yeu cau tren toan bo panel
 - Missing chu yeu xuat hien o nhom feature phu thuoc lag/rolling va metadata nguon
+- Target moi da dat dung dai can bang 10%-15% theo yeu cau huan luyen
 
 ---
 
@@ -94,7 +109,7 @@ merged_final.csv hien co 61 cot, gom cac nhom:
 - Rolling features: temp_7d_avg, ndvi_7d_avg, precip_7d_sum, salinity_7d_avg, lst_7d_avg, soil_moisture_7d_avg
 - Lag features: ndvi_lag_{1,3,7}, salinity_lag_{1,3,7}, precip_lag_{1,3,7}
 - Derived features: days_without_rain, moisture_deficit, moisture_deficit_7d, ndvi_diff, ndvi_pct_change, lst_ndvi_ratio, salinity_precip_ratio
-- Target-like features: ndvi_zscore, is_ndvi_anomaly, is_salinity_spike, crop_stress_score
+- Target-like features: ndvi_zscore, is_stress_event, is_salinity_spike, crop_stress_score
 
 ---
 
@@ -104,6 +119,7 @@ Trang thai:
 
 - San sang cho PrefixSpan: can discretize bien lien tuc thanh event theo tung location/time window
 - San sang cho XGBoost: co the dung merged_final.csv sau khi loai bo cot leakage/identifier khong can thiet theo bai toan
+- Target calibration da duoc khoa o nguong ndvi_zscore <= -1.315 (Moderate Stress)
 
 Luu y ky thuat:
 
@@ -115,4 +131,4 @@ Luu y ky thuat:
 
 ## 7. Ket luan
 
-Dataset da chuyen thanh cong tu single-series sang panel time-series da vi tri, da mo rong du lieu 8 nam va dam bao tinh nhat quan khoa location_id + date. Trang thai hien tai phu hop cho giai doan tiep theo cua du an (khai pha chuoi va huan luyen mo hinh), dong thoi giu duoc cac guardrail chong leakage trong preprocessing.
+Dataset da chuyen thanh cong tu single-series sang panel time-series da vi tri, da mo rong du lieu 8 nam va dam bao tinh nhat quan khoa location_id + date. Voi target is_stress_event da hieu chinh ve muc 10.00%, bo du lieu hien tai dat muc san sang de chuyen sang pha modeling va validation theo time-series protocol.
