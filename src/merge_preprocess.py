@@ -17,6 +17,7 @@ SALINITY_FILE = OUTPUT_DIR / "real_salinity.csv"
 OUTPUT_FILE = OUTPUT_DIR / "merged_final.csv"
 
 LOGGER = logging.getLogger("saltyseq.merge")
+STRESS_ZSCORE_THRESHOLD = -1.315
 
 
 def configure_logging() -> None:
@@ -327,7 +328,12 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     month_mean = out.groupby(["location_id", "month"])["ndvi"].transform("mean")
     month_std = out.groupby(["location_id", "month"])["ndvi"].transform("std")
     out["ndvi_zscore"] = (out["ndvi"] - month_mean) / month_std.clip(lower=0.01)
-    out["is_ndvi_anomaly"] = (out["ndvi_zscore"].abs() > 2.0).astype(int)
+    out["is_stress_event"] = (out["ndvi_zscore"] <= STRESS_ZSCORE_THRESHOLD).astype(int)
+    LOGGER.info(
+        "Target 'is_stress_event' created at threshold %.3f. Positive rate: %.2f%%",
+        STRESS_ZSCORE_THRESHOLD,
+        out["is_stress_event"].mean() * 100,
+    )
 
     out["is_salinity_spike"] = (
         (out["salinity_psu"] > 10) & (out["is_dry_season"] == 0)
