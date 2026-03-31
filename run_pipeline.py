@@ -10,12 +10,13 @@
 #   Script 2 → data/real_weather.csv      (Open-Meteo: thời tiết + đất)
 #   Script 3 → data/real_salinity.csv     (proxy độ mặn)
 #   Script 4 → data/merged_final.csv      (merge + feature engineering)
+#   Script 5 → data/splits/*              (train/validation/holdout artifacts)
 #
 # Cách chạy:
-#   python run_pipeline.py                   # chạy cả 4 bước
+#   python run_pipeline.py                   # chạy cả 5 bước
 #   python run_pipeline.py --skip-gee        # bỏ qua script1 (nếu GEE chưa auth)
 #   python run_pipeline.py --from 2          # bắt đầu từ script2
-#   python run_pipeline.py --only 4          # chỉ chạy script4
+#   python run_pipeline.py --only 5          # chỉ chạy script5
 #
 # Lưu ý GEE (Script 1):
 #   Lần đầu chạy cần xác thực:  python -c "import ee; ee.Authenticate()"
@@ -68,6 +69,16 @@ STEPS = [
         "script": "src/merge_preprocess.py",
         "output": DATA_DIR / "merged_final.csv",
         "note": "Cần output của bước 1, 2, 3 tồn tại trước.",
+    },
+    {
+        "id": 5,
+        "name": "Temporal Split Artifacts",
+        "script": "src/create_time_splits.py",
+        "output": DATA_DIR / "splits" / "split_summary.csv",
+        "note": (
+            "Tạo train universe 2015-2022, final holdout 2023-2025,\n"
+            "  và expanding-window fold manifest cho validation nội bộ."
+        ),
     },
 ]
 
@@ -159,11 +170,11 @@ def main():
     )
     parser.add_argument(
         "--from", dest="from_step", type=int, default=1, metavar="N",
-        help="Bắt đầu từ bước N (1–4)"
+        help="Bắt đầu từ bước N (1–5)"
     )
     parser.add_argument(
         "--only", dest="only_step", type=int, default=None, metavar="N",
-        help="Chỉ chạy bước N (1–4)"
+        help="Chỉ chạy bước N (1–5)"
     )
     args = parser.parse_args()
 
@@ -194,8 +205,9 @@ def main():
 
     # Chạy từng bước
     failed_at = None
+    total_steps = len(STEPS)
     for step in steps_to_run:
-        _banner(f"Bước {step['id']} / 4 — {step['name']}")
+        _banner(f"Bước {step['id']} / {total_steps} — {step['name']}")
         if step["note"]:
             for line in step["note"].splitlines():
                 print(f"  ℹ  {line.strip()}")

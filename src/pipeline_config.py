@@ -20,7 +20,10 @@ class LocationConfig:
 
 
 START_DATE: Final[str] = "2015-01-01"
-END_DATE: Final[str] = "2022-12-31"
+TRAIN_END_DATE: Final[str] = "2022-12-31"
+HOLDOUT_START_DATE: Final[str] = "2023-01-01"
+HOLDOUT_END_DATE: Final[str] = "2025-12-31"
+END_DATE: Final[str] = HOLDOUT_END_DATE
 
 GEE_PROJECT_ID: Final[str] = "cs313project-489508"
 GEE_CHUNK_MONTHS: Final[int] = 6
