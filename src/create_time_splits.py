@@ -175,7 +175,7 @@ def main() -> None:
 
     train_df, holdout_df = split_train_holdout(df, args.allow_empty_holdout)
     _save_panel(train_df, SPLIT_DIR / "train_2015_2022.csv")
-    _save_panel(holdout_df, SPLIT_DIR / "holdout_2023_2025.csv")
+    _save_panel(holdout_df, SPLIT_DIR / "holdout_test_2023_2025.csv")
 
     manifest = build_expanding_folds(train_df, args.n_splits)
     manifest.to_csv(SPLIT_DIR / "fold_manifest.csv", index=False)
@@ -192,7 +192,7 @@ def main() -> None:
                 "positive_rate_pct": round(train_df["is_stress_event"].mean() * 100, 4),
             },
             {
-                "dataset": "holdout_2023_2025",
+                "dataset": "holdout_test_2023_2025",
                 "rows": len(holdout_df),
                 "locations": holdout_df["location_id"].nunique() if not holdout_df.empty else 0,
                 "start": holdout_df["date"].min().date().isoformat() if not holdout_df.empty else "NA",

@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from scipy.interpolate import UnivariateSpline
 
-from src.pipeline_config import END_DATE, LOCATIONS, OUTPUT_DIR, START_DATE
+from src.pipeline_config import END_DATE, LOCATIONS, OUTPUT_DIR, START_DATE, TRAIN_END_DATE
 
 SATELLITE_FILE = OUTPUT_DIR / "real_ndvi_lst.csv"
 WEATHER_FILE = OUTPUT_DIR / "real_weather.csv"
@@ -18,6 +18,7 @@ OUTPUT_FILE = OUTPUT_DIR / "merged_final.csv"
 
 LOGGER = logging.getLogger("saltyseq.merge")
 STRESS_ZSCORE_THRESHOLD = -1.315
+MAX_INTERP_GAP_DAYS = 14
 
 
 def configure_logging() -> None:
@@ -78,6 +79,38 @@ def _missing_run_lengths(series: pd.Series) -> pd.Series:
     return lengths.where(is_missing, 0).astype(int)
 
 
+def _missing_group_lengths(series: pd.Series) -> pd.Series:
+    """Compute full missing-run length for each missing point."""
+    is_missing = series.isna()
+    group = (~is_missing).cumsum()
+    lengths = is_missing.groupby(group).transform("sum")
+    return lengths.where(is_missing, 0).astype(int)
+
+
+def _interpolate_short_gaps(
+    series: pd.Series,
+    method: str,
+    max_gap_days: int,
+) -> tuple[pd.Series, pd.Series]:
+    """Interpolate only short missing runs and keep long gaps as NaN."""
+    out = series.astype(float).copy()
+    gap_lengths = _missing_group_lengths(out)
+    eligible_mask = out.isna() & (gap_lengths <= max_gap_days)
+
+    if not eligible_mask.any():
+        return out, pd.Series(False, index=out.index)
+
+    try:
+        interp = out.interpolate(method=method, limit_direction="both")
+    except Exception as exc:  # noqa: BLE001
+        LOGGER.warning("Interpolation method '%s' failed, fallback to linear: %s", method, exc)
+        interp = out.interpolate(method="linear", limit_direction="both")
+
+    fill_mask = eligible_mask & interp.notna()
+    out.loc[fill_mask] = interp.loc[fill_mask]
+    return out, fill_mask
+
+
 def _apply_edge_fill(series: pd.Series) -> tuple[pd.Series, pd.Series]:
     """Fill only edge NaNs (before first valid or after last valid)."""
     out = series.copy()
@@ -133,8 +166,6 @@ def align_to_daily(df_sat: pd.DataFrame) -> pd.DataFrame:
     LOGGER.info("Aligning satellite data to daily panel grid.")
 
     daily_dates = pd.date_range(start=START_DATE, end=END_DATE, freq="D")
-    cutoff_spline = pd.Timestamp("2017-12-31")
-
     frames: list[pd.DataFrame] = []
 
     for location in LOCATIONS:
@@ -159,31 +190,19 @@ def align_to_daily(df_sat: pd.DataFrame) -> pd.DataFrame:
 
         merged["ndvi_is_observed"] = ndvi_original.notna().astype(int)
         merged["lst_is_observed"] = lst_original.notna().astype(int)
-        merged["ndvi_gap_days"] = _missing_run_lengths(ndvi_original)
+        merged["ndvi_gap_days"] = _missing_group_lengths(ndvi_original)
 
         ndvi_method = pd.Series("missing", index=merged.index, dtype="object")
         ndvi_method.loc[ndvi_original.notna()] = "observed"
 
-        ndvi_linear = ndvi_original.interpolate(
-            method="linear",
-            limit=15,
-            limit_direction="both",
+        ndvi_interp, ndvi_fill_mask = _interpolate_short_gaps(
+            series=ndvi_original,
+            method="pchip",
+            max_gap_days=MAX_INTERP_GAP_DAYS,
         )
-        linear_mask = ndvi_original.isna() & ndvi_linear.notna()
-        ndvi_method.loc[linear_mask] = "linear"
+        ndvi_method.loc[ndvi_fill_mask] = "pchip"
 
-        spline_target = ndvi_linear.isna() & (merged["date"] <= cutoff_spline)
-        ndvi_spline, spline_mask = _apply_spline_fill(
-            dates=merged["date"],
-            series=ndvi_linear,
-            target_mask=spline_target,
-        )
-        ndvi_method.loc[spline_mask] = "spline"
-
-        ndvi_edge, edge_mask = _apply_edge_fill(ndvi_spline)
-        ndvi_method.loc[edge_mask] = "edge_fill"
-
-        merged["ndvi"] = ndvi_edge.clip(-0.2, 1.0)
+        merged["ndvi"] = ndvi_interp.clip(-0.2, 1.0)
         merged["ndvi_interp_method"] = ndvi_method
 
         lst_method = pd.Series("missing", index=merged.index, dtype="object")
@@ -191,7 +210,7 @@ def align_to_daily(df_sat: pd.DataFrame) -> pd.DataFrame:
 
         lst_linear = lst_original.interpolate(
             method="linear",
-            limit=15,
+            limit=MAX_INTERP_GAP_DAYS,
             limit_direction="both",
         )
         lst_linear_mask = lst_original.isna() & lst_linear.notna()
@@ -206,12 +225,11 @@ def align_to_daily(df_sat: pd.DataFrame) -> pd.DataFrame:
         frames.append(merged)
 
         LOGGER.info(
-            "Aligned %s | ndvi observed=%s, linear=%s, spline=%s, edge=%s",
+            "Aligned %s | ndvi observed=%s, pchip=%s, unresolved_long_gap=%s",
             location.location_id,
             int((ndvi_method == "observed").sum()),
-            int((ndvi_method == "linear").sum()),
-            int((ndvi_method == "spline").sum()),
-            int((ndvi_method == "edge_fill").sum()),
+            int((ndvi_method == "pchip").sum()),
+            int((ndvi_method == "missing").sum()),
         )
 
     df_daily = pd.concat(frames, ignore_index=True)
@@ -299,13 +317,14 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
 
     grp = out.groupby("location_id", group_keys=False)
 
-    out["temp_7d_avg"] = grp["temp_mean"].transform(lambda s: s.rolling(7, min_periods=1).mean())
-    out["ndvi_7d_avg"] = grp["ndvi"].transform(lambda s: s.rolling(7, min_periods=1).mean())
-    out["precip_7d_sum"] = grp["precipitation"].transform(lambda s: s.rolling(7, min_periods=1).sum())
-    out["salinity_7d_avg"] = grp["salinity_psu"].transform(lambda s: s.rolling(7, min_periods=1).mean())
-    out["lst_7d_avg"] = grp["lst"].transform(lambda s: s.rolling(7, min_periods=1).mean())
+    out["temp_7d_avg"] = grp["temp_mean"].transform(lambda s: s.rolling(7, min_periods=3).mean())
+    out["ndvi_7d_avg"] = grp["ndvi"].transform(lambda s: s.rolling(7, min_periods=3).mean())
+    out["precip_7d_sum"] = grp["precipitation"].transform(lambda s: s.rolling(7, min_periods=3).sum())
+    out["salinity_7d_avg"] = grp["salinity_psu"].transform(lambda s: s.rolling(7, min_periods=3).mean())
+    out["salinity_7d_avg_lag1"] = grp["salinity_7d_avg"].shift(1)
+    out["lst_7d_avg"] = grp["lst"].transform(lambda s: s.rolling(7, min_periods=3).mean())
     out["soil_moisture_7d_avg"] = grp["soil_moisture_surface"].transform(
-        lambda s: s.rolling(7, min_periods=1).mean()
+        lambda s: s.rolling(7, min_periods=3).mean()
     )
 
     for lag in [1, 3, 7]:
@@ -316,7 +335,7 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     out["days_without_rain"] = grp["precipitation"].transform(_days_without_rain)
     out["moisture_deficit"] = out["et0"] - out["precipitation"]
     out["moisture_deficit_7d"] = grp["moisture_deficit"].transform(
-        lambda s: s.rolling(7, min_periods=1).sum()
+        lambda s: s.rolling(7, min_periods=3).sum()
     )
 
     out["ndvi_diff"] = grp["ndvi"].diff()
@@ -325,14 +344,59 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     out["lst_ndvi_ratio"] = out["lst"] / out["ndvi"].clip(lower=0.1)
     out["salinity_precip_ratio"] = out["salinity_psu"] / out["precipitation"].clip(lower=0.1)
 
-    month_mean = out.groupby(["location_id", "month"])["ndvi"].transform("mean")
-    month_std = out.groupby(["location_id", "month"])["ndvi"].transform("std")
-    out["ndvi_zscore"] = (out["ndvi"] - month_mean) / month_std.clip(lower=0.01)
+    train_cutoff = pd.Timestamp(TRAIN_END_DATE)
+    train_mask = out["date"] <= train_cutoff
+    train_ref = out.loc[train_mask, ["location_id", "month", "ndvi"]].copy()
+
+    month_stats = (
+        train_ref.groupby(["location_id", "month"], as_index=False)["ndvi"]
+        .agg(ndvi_mean_train="mean", ndvi_std_train="std")
+    )
+
+    loc_stats = (
+        train_ref.groupby("location_id", as_index=False)["ndvi"]
+        .agg(loc_ndvi_mean_train="mean", loc_ndvi_std_train="std")
+    )
+
+    global_mean = float(train_ref["ndvi"].mean())
+    global_std = max(float(train_ref["ndvi"].std()), 0.01)
+
+    out = out.merge(month_stats, on=["location_id", "month"], how="left")
+    out = out.merge(loc_stats, on=["location_id"], how="left")
+
+    out["ndvi_mean_train"] = (
+        out["ndvi_mean_train"].fillna(out["loc_ndvi_mean_train"]).fillna(global_mean)
+    )
+    out["ndvi_std_train"] = (
+        out["ndvi_std_train"].fillna(out["loc_ndvi_std_train"]).fillna(global_std).clip(lower=0.01)
+    )
+
+    out["ndvi_zscore"] = (out["ndvi"] - out["ndvi_mean_train"]) / out["ndvi_std_train"]
     out["is_stress_event"] = (out["ndvi_zscore"] <= STRESS_ZSCORE_THRESHOLD).astype(int)
+
+    train_rate = float(out.loc[train_mask, "is_stress_event"].mean() * 100)
+    holdout_mask = out["date"] > train_cutoff
+    holdout_rate = (
+        float(out.loc[holdout_mask, "is_stress_event"].mean() * 100)
+        if holdout_mask.any()
+        else float("nan")
+    )
+
     LOGGER.info(
-        "Target 'is_stress_event' created at threshold %.3f. Positive rate: %.2f%%",
+        "Target 'is_stress_event' created at threshold %.3f | train_rate=%.2f%% holdout_rate=%.2f%%",
         STRESS_ZSCORE_THRESHOLD,
-        out["is_stress_event"].mean() * 100,
+        train_rate,
+        holdout_rate,
+    )
+
+    out = out.drop(
+        columns=[
+            "ndvi_mean_train",
+            "ndvi_std_train",
+            "loc_ndvi_mean_train",
+            "loc_ndvi_std_train",
+        ],
+        errors="ignore",
     )
 
     out["is_salinity_spike"] = (
@@ -371,7 +435,7 @@ def final_cleanup(df: pd.DataFrame) -> pd.DataFrame:
     ]
 
     for col in numeric_cols:
-        out[col] = out.groupby("location_id")[col].transform(lambda s: s.ffill().bfill())
+        out[col] = out.groupby("location_id")[col].transform(lambda s: s.ffill())
 
     missing_after = int(out.isna().sum().sum())
     LOGGER.info("Final missing values after cleanup: %s", missing_after)
