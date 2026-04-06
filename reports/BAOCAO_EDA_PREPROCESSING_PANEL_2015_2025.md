@@ -73,7 +73,8 @@ Thay doi quan trong trong dot refactor nay:
 - Rolling feature doi sang min_periods=3 de giam over-trust o dau chuoi.
 - Bo sung feature du bao an toan: salinity_7d_avg_lag1.
 - Tinh ndvi_zscore bang thong ke train-only, sau do map ra full horizon (khong nhin tuong lai).
-- Final cleanup chi ffill theo tung location (bo bfill de tranh future leakage).
+- Final cleanup chi ffill theo tung location (giu NaN dau chuoi do lag/rolling).
+- Edge fill cho LST da chuyen sang co che head/tail boundary assignment, khong dung bfill().
 - Chuan hoa naming holdout file thanh holdout_test_2023_2025.csv.
 
 ## 3) Tham dinh ket qua tu notebook panel EDA
@@ -83,12 +84,14 @@ Nguon tham dinh:
 
 ### 3.1 Kiem tra tinh toan ven cua panel va split
 Ket qua:
-- Train: 14610 dong, 62 cot, 5 location, 2015-01-01 -> 2022-12-31.
-- Holdout: 5480 dong, 62 cot, 5 location, 2023-01-01 -> 2025-12-31.
+- Merged full horizon: 20090 dong, 70 cot, 5 location, 2015-01-01 -> 2025-12-31.
+- Train: 14610 dong, 5 location, 2015-01-01 -> 2022-12-31.
+- Holdout: 5480 dong, 5 location, 2023-01-01 -> 2025-12-31.
 - Key (location_id, date) duy nhat o ca train va holdout.
 - Do day du du lieu:
-  - Train: 99.5329%
-  - Holdout: 99.7610%
+   - Merged full horizon: 99.6329%
+   - Train: 99.5329%
+   - Holdout: 99.7610%
 
 Nhan xet:
 - Split time boundary dung theo thiet ke train/holdout.
@@ -171,7 +174,8 @@ Tu duy xu ly:
 
 Giai phap dang ap dung:
 - ndvi_zscore map tu thong ke train-only theo (location, month).
-- final cleanup bo bfill, chi ffill theo location.
+- final cleanup chi ffill theo location; NaN dau chuoi do lag/rolling duoc giu co chu dich.
+- edge fill cua LST dung gia tri bien (first/last observed), khong dung bfill().
 - rolling co min_periods=3 va feature lagged salinity_7d_avg_lag1.
 
 ### Van de B: Spatial leakage (tron location)

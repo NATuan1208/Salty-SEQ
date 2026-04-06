@@ -122,12 +122,16 @@ def _apply_edge_fill(series: pd.Series) -> tuple[pd.Series, pd.Series]:
 
     first_valid = valid_idx[0]
     last_valid = valid_idx[-1]
-    edge_mask = out.isna() & ((out.index <= first_valid) | (out.index >= last_valid))
+    head_mask = out.isna() & (out.index <= first_valid)
+    tail_mask = out.isna() & (out.index >= last_valid)
 
-    if edge_mask.any():
-        edge_filled = out.ffill().bfill()
-        out.loc[edge_mask] = edge_filled.loc[edge_mask]
-        marker.loc[edge_mask] = True
+    if head_mask.any():
+        out.loc[head_mask] = out.iloc[first_valid]
+        marker.loc[head_mask] = True
+
+    if tail_mask.any():
+        out.loc[tail_mask] = out.iloc[last_valid]
+        marker.loc[tail_mask] = True
 
     return out, marker
 
