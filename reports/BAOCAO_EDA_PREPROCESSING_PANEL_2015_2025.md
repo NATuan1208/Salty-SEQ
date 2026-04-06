@@ -1,5 +1,55 @@
 # BAO CAO EDA VA TIEN XU LY DU LIEU PANEL (2015-2025)
 
+## CAP NHAT PHIEN BAN 2026-04-06 (Override + Audit Fix)
+
+Cap nhat nay dong bo theo ban override moi trong `src/merge_preprocess.py` va ket qua rerun `python run_pipeline.py --from 4`.
+
+### A. Ket qua du lieu sau rerun
+
+- `merged_final.csv`: 20090 dong x 70 cot
+- Date range: 2015-01-01 -> 2025-12-31
+- So location: 5
+- Key `location_id + date`: unique (0 duplicate)
+- Completeness: 99.6329%
+- NDVI observed ratio: 22.4988%
+- LST observed ratio: 4.5495%
+
+### B. Feature engineering duoc bo sung
+
+- Median features:
+   - `salinity_7d_median`
+   - `ndvi_7d_median`
+- Accumulation features:
+   - `precip_15d_sum`
+   - `precip_30d_sum`
+- Event feature:
+   - `heatwave_consecutive_days`
+- Tendency features:
+   - `salinity_tendency`
+   - `ndvi_tendency`
+   - `soil_moisture_tendency`
+
+Tat ca feature tren da ton tai trong artifact moi nhat.
+
+### C. Finding da sua theo audit (approved)
+
+Da sua leakage fallback trong normalization cua `crop_stress_score`:
+
+- Truoc day fallback co the dung `out[...].max()` (co chua holdout).
+- Hien tai fallback chi dung train-only statistics:
+   - `train_ref["ndvi"].max()`
+   - `train_fallback_max["salinity_psu"]`
+   - `train_fallback_max["soil_moisture_surface"]`
+
+Muc tieu: dam bao khong co thong ke holdout lot vao buoc normalization khi tinh feature stress tong hop.
+
+### D. Split metrics sau cap nhat
+
+- Train 2015-2022 positive rate: 10.0548%
+- Holdout 2023-2025 positive rate: 12.8102%
+
+Ghi chu: Cac NaN o dau chuoi do lag/rolling duoc giu nguyen co chu dich de bao toan temporal safety.
+
 ## 1) Muc tieu bao cao
 Bao cao nay tong hop day du ket qua EDA + preprocessing theo huong panel time-series cho 5 vi tri (location_id), voi 2 muc tieu:
 - Tham dinh tinh dung dan cua du lieu dau vao cho phase mo hinh hoa.

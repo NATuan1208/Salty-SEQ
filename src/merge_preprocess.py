@@ -302,6 +302,19 @@ def _days_without_rain(series: pd.Series) -> pd.Series:
     return pd.Series(result, index=series.index)
 
 
+def _count_heatwave(series: pd.Series) -> pd.Series:
+    """Count consecutive days with temp_max >= 34.0 (Heatwave pattern for Mekong Delta)."""
+    count = 0
+    result = []
+    for t in series.fillna(0):
+        if t >= 34.0:
+            count += 1
+        else:
+            count = 0
+        result.append(count)
+    return pd.Series(result, index=series.index)
+
+
 def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     """Create panel-aware temporal, rolling, lag, and anomaly features."""
     LOGGER.info("Engineering panel features.")
@@ -343,6 +356,20 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
 
     out["lst_ndvi_ratio"] = out["lst"] / out["ndvi"].clip(lower=0.1)
     out["salinity_precip_ratio"] = out["salinity_psu"] / out["precipitation"].clip(lower=0.1)
+
+    # --- ADVANCED FEATURES ---
+    LOGGER.info("Adding advanced features (noise filters, accumulations, tendencies)...")
+    out["salinity_7d_median"] = grp["salinity_psu"].transform(lambda s: s.rolling(7, min_periods=3).median())
+    out["ndvi_7d_median"] = grp["ndvi"].transform(lambda s: s.rolling(7, min_periods=3).median())
+    
+    out["precip_15d_sum"] = grp["precipitation"].transform(lambda s: s.rolling(15, min_periods=5).sum())
+    out["precip_30d_sum"] = grp["precipitation"].transform(lambda s: s.rolling(30, min_periods=10).sum())
+    out["heatwave_consecutive_days"] = grp["temp_max"].transform(_count_heatwave)
+    
+    out["salinity_tendency"] = out["salinity_7d_avg"] - out["salinity_7d_avg_lag1"]
+    out["ndvi_tendency"] = out["ndvi_7d_avg"] - grp["ndvi_7d_avg"].shift(1)
+    out["soil_moisture_tendency"] = out["soil_moisture_surface"] - grp["soil_moisture_surface"].shift(1)
+    # ---------------------------------------
 
     train_cutoff = pd.Timestamp(TRAIN_END_DATE)
     train_mask = out["date"] <= train_cutoff
@@ -403,14 +430,24 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
         (out["salinity_psu"] > 10) & (out["is_dry_season"] == 0)
     ).astype(int)
 
-    ndvi_max = grp["ndvi"].transform("max").clip(lower=0.01)
-    salinity_max = grp["salinity_psu"].transform("max").clip(lower=0.01)
-    soil_max = grp["soil_moisture_surface"].transform("max").clip(lower=0.01)
+    # Prevent Data Leakage: Calculate maximums ONLY from the training dataset
+    train_max_stats = out[train_mask].groupby("location_id")[
+        ["ndvi", "salinity_psu", "soil_moisture_surface"]
+    ].max()
+
+    train_fallback_max = out.loc[
+        train_mask,
+        ["ndvi", "salinity_psu", "soil_moisture_surface"],
+    ].max()
+
+    ndvi_max = out["location_id"].map(train_max_stats["ndvi"]).fillna(train_ref["ndvi"].max()).clip(lower=0.01)
+    salinity_max = out["location_id"].map(train_max_stats["salinity_psu"]).fillna(train_fallback_max["salinity_psu"]).clip(lower=0.01)
+    soil_max = out["location_id"].map(train_max_stats["soil_moisture_surface"]).fillna(train_fallback_max["soil_moisture_surface"]).clip(lower=0.01)
 
     out["crop_stress_score"] = (
-        (1 - out["ndvi"] / ndvi_max) * 0.4
+        (1 - (out["ndvi"] / ndvi_max).clip(upper=1.0)) * 0.4
         + (out["salinity_psu"] / salinity_max) * 0.4
-        + (1 - out["soil_moisture_surface"] / soil_max) * 0.2
+        + (1 - (out["soil_moisture_surface"] / soil_max).clip(upper=1.0)) * 0.2
     )
 
     return out
