@@ -1,0 +1,48 @@
+{
+  "danger": [
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Warning",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 816,
+      "support_pct": 4.07,
+      "type": "danger",
+      "label_vi": "Chuỗi mặn cao + khô hạn → NGUY HIỂM"
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Dry|Plant_Warning",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 612,
+      "support_pct": 3.05,
+      "type": "danger",
+      "label_vi": "Mặn vừa sang cao + đất khô → nguy hiểm"
+    }
+  ],
+  "warning": [
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Warning"
+      ],
+      "support": 4954,
+      "support_pct": 24.7,
+      "type": "warning",
+      "label_vi": "Mặn cao từ ướt sang khô, cây cảnh báo"
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Warning"
+      ],
+      "support": 2100,
+      "support_pct": 10.5,
+      "type": "warning",
+      "label_vi": "Mặn tăng dần từ thấp → vừa, cây bị ảnh hưởng"
+    }
+  ],
+  "lookback": 14,
+  "min_sup": 0.03
+}

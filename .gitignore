@@ -50,3 +50,14 @@ logs/
 
 # Nội bộ
 Strategy.md
+
+# SaltySeq demo — large binary/data files
+saltyseq-demo/backend/data/merged_final.csv
+saltyseq-demo/backend/data/predictions.db
+saltyseq-demo/backend/data/pipeline_status.json
+saltyseq-demo/backend/models/xgboost_model.json
+saltyseq-demo/backend/models/scaler.pkl
+saltyseq-demo/frontend/assets/*.jpg
+saltyseq-demo/frontend/assets/*.png
+saltyseq-demo/*.jpg
+saltyseq-demo/*.png
