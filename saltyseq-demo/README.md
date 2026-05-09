@@ -60,19 +60,67 @@ Sau đó mở **http://localhost:8000** trong browser.
 
 > Shortcut: `./run.sh` (nếu đã cấp quyền execute: `chmod +x run.sh`)
 
-### 4. Demo nhanh (ngày có kết quả rõ ràng)
+### 4. Kịch bản demo tốt nhất (đã test thực tế)
 
-Mở http://localhost:8000 → **Trang Dự báo**:
+> Data CSV có đến **cuối 2025** (REAL data). Kết quả phụ thuộc NDVI tendency + salinity thực tế, **không phải chỉ salinity**. Ngày ngoài 2025 → backend dùng default features → kết quả không có nghĩa nông học.
 
-| Trạm | Ngày | Kết quả kỳ vọng |
-|------|------|-----------------|
-| Ba Tri | 2020-03-15 | **99.5% DANGER** — mặn 29.6 PSU |
-| Bình Đại | 2020-03-15 | **99.9% DANGER** — mặn 26.3 PSU |
-| Thạnh Phú | 2020-03-15 | **96.6% DANGER** — gần cửa biển nhất |
-| Châu Thành | 2020-03-15 | **0.0% SAFE** — xa cửa biển 38km |
-| Giồng Trôm | 2020-03-15 | **0.0% SAFE** — NDVI cao 0.6 |
-| Ba Tri | 2015-06-09 | **99.9% DANGER** — stress event thật |
-| Thạnh Phú | 2024-03-15 | **0.9% SAFE** — rainy recovery |
+#### Kịch bản A — "Hạn mặn cực đoan" (needle đỏ ~100%)
+Mở http://localhost:8000 → Trang Dự báo → chọn ngày **2020-03-15**:
+
+| Trạm | Prob | Label | Ghi chú |
+|------|------|-------|---------|
+| Ba Tri | **99.5%** | DANGER | sal=29.6 PSU, NDVI sụp |
+| Bình Đại | **99.9%** | DANGER | sal=26.3 PSU, gần cửa biển 8km |
+| Thạnh Phú | **96.6%** | DANGER | gần cửa biển nhất (5.2km) |
+| Châu Thành | 0.0% | SAFE | xa cửa biển 38km, NDVI xanh |
+| Giồng Trôm | 0.0% | SAFE | NDVI 0.6, đất còn ẩm |
+
+→ **Minh họa tốt**: địa lý quyết định rủi ro (trạm ven biển vs nội địa).
+
+#### Kịch bản B — "Nghịch lý NDVI" (salinity thấp nhưng vẫn DANGER)
+Ngày **2025-06-15** — mùa mưa, mặn đã giảm nhưng cây vẫn stress:
+
+| Trạm | Sal (PSU) | Prob | Label | Lý do |
+|------|-----------|------|-------|-------|
+| Châu Thành | 11.5 | **98.8%** | DANGER | NDVI tendency âm mạnh |
+| Giồng Trôm | 10.6 | **98.9%** | DANGER | NDVI sụp sau đợt mặn |
+| Ba Tri | 10.1 | 0.1% | SAFE | NDVI phục hồi |
+| Bình Đại | 12.6 | 0.7% | SAFE | cây chịu được |
+
+→ **Minh họa tốt**: model không chỉ nhìn salinity — NDVI tendency (#1 feature) quyết định.
+
+#### Kịch bản C — "Phân kỳ rõ rệt" (mix SAFE + WARNING + DANGER)
+Ngày **2025-09-10** — cuối mùa mưa, kết quả đa dạng nhất:
+
+| Trạm | Sal (PSU) | Prob | Label |
+|------|-----------|------|-------|
+| Châu Thành | 0.5 | **98.0%** | DANGER |
+| Giồng Trôm | 1.3 | **40.5%** | WARNING |
+| Ba Tri | 1.5 | 0.2% | SAFE |
+| Bình Đại | 4.3 | 0.0% | SAFE |
+| Thạnh Phú | 0.5 | 0.0% | SAFE |
+
+→ **Minh họa tốt nhất cho demo hội đồng**: needle ở 3 vị trí khác nhau cùng một ngày.
+
+#### Kịch bản D — "Stress event thật trong lịch sử"
+Ngày **2015-06-09** — Ba Tri stress event được xác nhận:
+
+| Trạm | Prob | Label | Ghi chú |
+|------|------|-------|---------|
+| Ba Tri | **99.8%** | DANGER | `is_stress_event=1` trong CSV |
+| Bình Đại | 0.8% | SAFE | cùng ngày, khác địa lý |
+
+→ **Minh họa tốt**: model phát hiện đúng stress event thật trong test set.
+
+#### Kịch bản E — "Cảnh báo sớm đầu năm 2025"
+Ngày **2025-01-15** — giữa mùa khô:
+
+| Trạm | Sal (PSU) | Prob | Label |
+|------|-----------|------|-------|
+| Ba Tri | 14.5 | **99.8%** | DANGER |
+| Các trạm còn lại | 15–17 | < 1% | SAFE |
+
+→ **Minh họa tốt**: cùng mức salinity, NDVI pattern khác nhau → kết quả khác nhau.
 
 ---
 
