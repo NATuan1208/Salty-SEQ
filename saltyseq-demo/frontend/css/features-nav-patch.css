@@ -1,0 +1,165 @@
+/* ═══════════════════════════════════════════════════════════
+   features-nav-patch.css
+   Mirror the stn-card hover pattern cho fp-sidenav-item:
+   - accent bar (::after) mọc ra từ bên trái khi hover/active
+   - translateX slide + border glow
+   - dot pulse
+   Mỗi group có CSS variable --fp-nav-clr riêng (set inline JS)
+═══════════════════════════════════════════════════════════ */
+
+/* ── Base item ── */
+.fp-sidenav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 10px;
+  border-radius: var(--r-md);
+  margin-bottom: 5px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent;
+  position: relative;
+  overflow: hidden;
+
+  transition:
+    background    var(--t-fast) var(--ease-std),
+    border-color  var(--t-fast) var(--ease-std),
+    transform     var(--t-base) var(--ease),
+    box-shadow    var(--t-base) var(--ease-std);
+
+  animation: fp-slide-in .4s var(--ease) both;
+}
+
+/* ── Left accent bar (same mechanism as stn-card::after) ── */
+.fp-sidenav-item::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 8px; bottom: 8px;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--fp-nav-clr, var(--teal-5));
+  transform: scaleY(0);
+  transform-origin: center;
+  transition: transform var(--t-base) var(--ease);
+}
+
+/* ── HOVER — non-active ── */
+.fp-sidenav-item:not(.active):hover {
+  background: color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 9%, var(--surface-hover));
+  border-color: color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 25%, var(--border));
+  transform: translateX(4px);
+  box-shadow:
+    var(--sh-sm),
+    0 0 0 2px color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 10%, transparent);
+}
+
+.fp-sidenav-item:not(.active):hover::before {
+  transform: scaleY(1);
+}
+
+/* ── ACTIVE ── */
+.fp-sidenav-item.active {
+  background: color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 11%, var(--surface));
+  border-color: color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 38%, var(--border));
+  transform: translateX(3px);
+  box-shadow:
+    var(--sh-sm),
+    0 0 0 3px color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 12%, transparent);
+}
+
+.fp-sidenav-item.active::before {
+  transform: scaleY(1);
+}
+
+/* ── Icon: scale up + colorize on hover/active ── */
+.fp-sidenav-item .fp-nav-icon {
+  font-size: 15px;
+  color: var(--ink-4);
+  flex-shrink: 0;
+  transition: color var(--t-fast), transform var(--t-base) var(--ease);
+}
+.fp-sidenav-item:hover .fp-nav-icon,
+.fp-sidenav-item.active .fp-nav-icon {
+  color: var(--fp-nav-clr, var(--teal-5));
+  transform: scale(1.18);
+}
+
+/* ── Label text ── */
+.fp-nav-label {
+  font-family: var(--ff-body);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+  transition: color var(--t-fast);
+}
+.fp-sidenav-item:hover .fp-nav-label,
+.fp-sidenav-item.active .fp-nav-label {
+  color: var(--ink-1);
+}
+
+.fp-nav-sub {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--ink-4);
+  transition: color var(--t-fast);
+}
+.fp-sidenav-item:hover .fp-nav-sub,
+.fp-sidenav-item.active .fp-nav-sub {
+  color: color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 70%, var(--ink-4));
+}
+
+/* ── Feature dots ── */
+.fp-nav-dots {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.fp-nav-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  opacity: 0.45;
+  transition:
+    opacity     var(--t-fast),
+    transform   var(--t-base) var(--ease),
+    box-shadow  var(--t-base) var(--ease-std);
+}
+
+/* Stagger dot pop on hover */
+.fp-sidenav-item:hover .fp-nav-dot,
+.fp-sidenav-item.active .fp-nav-dot {
+  opacity: 1;
+}
+.fp-sidenav-item:hover .fp-nav-dot:nth-child(1),
+.fp-sidenav-item.active .fp-nav-dot:nth-child(1) {
+  box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 30%, transparent);
+  transform: scale(1.3);
+  transition-delay: 0ms;
+}
+.fp-sidenav-item:hover .fp-nav-dot:nth-child(2),
+.fp-sidenav-item.active .fp-nav-dot:nth-child(2) {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 22%, transparent);
+  transform: scale(1.2);
+  transition-delay: 30ms;
+}
+.fp-sidenav-item:hover .fp-nav-dot:nth-child(3),
+.fp-sidenav-item.active .fp-nav-dot:nth-child(3) {
+  transform: scale(1.15);
+  transition-delay: 60ms;
+}
+.fp-sidenav-item:hover .fp-nav-dot:nth-child(4),
+.fp-sidenav-item.active .fp-nav-dot:nth-child(4) {
+  transform: scale(1.1);
+  transition-delay: 90ms;
+}
+
+/* ── Active dot: high-importance ones are brighter ── */
+.fp-nav-dot.is-top {
+  opacity: 0.75;
+}
+.fp-sidenav-item:hover .fp-nav-dot.is-top,
+.fp-sidenav-item.active .fp-nav-dot.is-top {
+  opacity: 1;
+  box-shadow: 0 0 5px color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 50%, transparent) !important;
+}

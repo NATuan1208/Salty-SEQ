@@ -1,0 +1,2529 @@
+{
+  "danger": [
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 187,
+      "support_pct": 17.89,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 140,
+      "support_pct": 13.4,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 135,
+      "support_pct": 12.92,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 126,
+      "support_pct": 12.06,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 115,
+      "support_pct": 11.0,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 111,
+      "support_pct": 10.62,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 110,
+      "support_pct": 10.53,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 99,
+      "support_pct": 9.47,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 98,
+      "support_pct": 9.38,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 96,
+      "support_pct": 9.19,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 92,
+      "support_pct": 8.8,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 91,
+      "support_pct": 8.71,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 90,
+      "support_pct": 8.61,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 89,
+      "support_pct": 8.52,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 85,
+      "support_pct": 8.13,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 83,
+      "support_pct": 7.94,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 80,
+      "support_pct": 7.66,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 77,
+      "support_pct": 7.37,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 77,
+      "support_pct": 7.37,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 74,
+      "support_pct": 7.08,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 68,
+      "support_pct": 6.51,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 67,
+      "support_pct": 6.41,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 67,
+      "support_pct": 6.41,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 66,
+      "support_pct": 6.32,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 65,
+      "support_pct": 6.22,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 64,
+      "support_pct": 6.12,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 62,
+      "support_pct": 5.93,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 62,
+      "support_pct": 5.93,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 60,
+      "support_pct": 5.74,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 59,
+      "support_pct": 5.65,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_DANGER",
+        "Salt_Low|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 58,
+      "support_pct": 5.55,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 55,
+      "support_pct": 5.26,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 54,
+      "support_pct": 5.17,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 53,
+      "support_pct": 5.07,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 52,
+      "support_pct": 4.98,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 52,
+      "support_pct": 4.98,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 51,
+      "support_pct": 4.88,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 50,
+      "support_pct": 4.78,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 49,
+      "support_pct": 4.69,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 46,
+      "support_pct": 4.4,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 45,
+      "support_pct": 4.31,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 45,
+      "support_pct": 4.31,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 45,
+      "support_pct": 4.31,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 44,
+      "support_pct": 4.21,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 44,
+      "support_pct": 4.21,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 43,
+      "support_pct": 4.11,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 43,
+      "support_pct": 4.11,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 41,
+      "support_pct": 3.92,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER"
+      ],
+      "support": 41,
+      "support_pct": 3.92,
+      "type": "danger",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_DANGER",
+        "Salt_Low|Soil_Wet|Plant_DANGER",
+        "Salt_Low|Soil_Wet|Plant_DANGER"
+      ],
+      "support": 41,
+      "support_pct": 3.92,
+      "type": "danger",
+      "label_vi": null
+    }
+  ],
+  "warning": [
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 663,
+      "support_pct": 63.44,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 605,
+      "support_pct": 57.89,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 565,
+      "support_pct": 54.07,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 513,
+      "support_pct": 49.09,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 458,
+      "support_pct": 43.83,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 422,
+      "support_pct": 40.38,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 395,
+      "support_pct": 37.8,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 389,
+      "support_pct": 37.22,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 374,
+      "support_pct": 35.79,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 365,
+      "support_pct": 34.93,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 363,
+      "support_pct": 34.74,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 363,
+      "support_pct": 34.74,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 351,
+      "support_pct": 33.59,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 336,
+      "support_pct": 32.15,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 336,
+      "support_pct": 32.15,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 334,
+      "support_pct": 31.96,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 326,
+      "support_pct": 31.2,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 325,
+      "support_pct": 31.1,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 311,
+      "support_pct": 29.76,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 307,
+      "support_pct": 29.38,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 298,
+      "support_pct": 28.52,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 292,
+      "support_pct": 27.94,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 275,
+      "support_pct": 26.32,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 269,
+      "support_pct": 25.74,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 262,
+      "support_pct": 25.07,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 255,
+      "support_pct": 24.4,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 254,
+      "support_pct": 24.31,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 253,
+      "support_pct": 24.21,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 244,
+      "support_pct": 23.35,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 243,
+      "support_pct": 23.25,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 234,
+      "support_pct": 22.39,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 233,
+      "support_pct": 22.3,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 231,
+      "support_pct": 22.11,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 220,
+      "support_pct": 21.05,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 210,
+      "support_pct": 20.1,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 202,
+      "support_pct": 19.33,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 200,
+      "support_pct": 19.14,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 192,
+      "support_pct": 18.37,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 190,
+      "support_pct": 18.18,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 188,
+      "support_pct": 17.99,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 188,
+      "support_pct": 17.99,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 187,
+      "support_pct": 17.89,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 185,
+      "support_pct": 17.7,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 181,
+      "support_pct": 17.32,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 181,
+      "support_pct": 17.32,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 178,
+      "support_pct": 17.03,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 178,
+      "support_pct": 17.03,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 178,
+      "support_pct": 17.03,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 176,
+      "support_pct": 16.84,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 174,
+      "support_pct": 16.65,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 169,
+      "support_pct": 16.17,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 165,
+      "support_pct": 15.79,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 165,
+      "support_pct": 15.79,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 164,
+      "support_pct": 15.69,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 159,
+      "support_pct": 15.22,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 158,
+      "support_pct": 15.12,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 155,
+      "support_pct": 14.83,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 154,
+      "support_pct": 14.74,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 149,
+      "support_pct": 14.26,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 148,
+      "support_pct": 14.16,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 147,
+      "support_pct": 14.07,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 147,
+      "support_pct": 14.07,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 144,
+      "support_pct": 13.78,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 143,
+      "support_pct": 13.68,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 141,
+      "support_pct": 13.49,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 137,
+      "support_pct": 13.11,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 137,
+      "support_pct": 13.11,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 136,
+      "support_pct": 13.01,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 135,
+      "support_pct": 12.92,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 133,
+      "support_pct": 12.73,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 131,
+      "support_pct": 12.54,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 131,
+      "support_pct": 12.54,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 130,
+      "support_pct": 12.44,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 129,
+      "support_pct": 12.34,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 128,
+      "support_pct": 12.25,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 128,
+      "support_pct": 12.25,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 127,
+      "support_pct": 12.15,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 126,
+      "support_pct": 12.06,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 123,
+      "support_pct": 11.77,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 122,
+      "support_pct": 11.67,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 121,
+      "support_pct": 11.58,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 121,
+      "support_pct": 11.58,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 121,
+      "support_pct": 11.58,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 121,
+      "support_pct": 11.58,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 120,
+      "support_pct": 11.48,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 120,
+      "support_pct": 11.48,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 119,
+      "support_pct": 11.39,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 118,
+      "support_pct": 11.29,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 118,
+      "support_pct": 11.29,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 116,
+      "support_pct": 11.1,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 116,
+      "support_pct": 11.1,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 115,
+      "support_pct": 11.0,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 114,
+      "support_pct": 10.91,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 114,
+      "support_pct": 10.91,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 113,
+      "support_pct": 10.81,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 112,
+      "support_pct": 10.72,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 111,
+      "support_pct": 10.62,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 111,
+      "support_pct": 10.62,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 109,
+      "support_pct": 10.43,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 109,
+      "support_pct": 10.43,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 107,
+      "support_pct": 10.24,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 107,
+      "support_pct": 10.24,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 107,
+      "support_pct": 10.24,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 106,
+      "support_pct": 10.14,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 105,
+      "support_pct": 10.05,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 105,
+      "support_pct": 10.05,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 105,
+      "support_pct": 10.05,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 104,
+      "support_pct": 9.95,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 104,
+      "support_pct": 9.95,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 103,
+      "support_pct": 9.86,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 103,
+      "support_pct": 9.86,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 102,
+      "support_pct": 9.76,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 102,
+      "support_pct": 9.76,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 102,
+      "support_pct": 9.76,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 102,
+      "support_pct": 9.76,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 102,
+      "support_pct": 9.76,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 102,
+      "support_pct": 9.76,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 102,
+      "support_pct": 9.76,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 100,
+      "support_pct": 9.57,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 100,
+      "support_pct": 9.57,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 100,
+      "support_pct": 9.57,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 100,
+      "support_pct": 9.57,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 97,
+      "support_pct": 9.28,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 96,
+      "support_pct": 9.19,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 96,
+      "support_pct": 9.19,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 96,
+      "support_pct": 9.19,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 96,
+      "support_pct": 9.19,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 95,
+      "support_pct": 9.09,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 95,
+      "support_pct": 9.09,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 95,
+      "support_pct": 9.09,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 94,
+      "support_pct": 9.0,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 94,
+      "support_pct": 9.0,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 93,
+      "support_pct": 8.9,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 93,
+      "support_pct": 8.9,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 92,
+      "support_pct": 8.8,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 91,
+      "support_pct": 8.71,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 91,
+      "support_pct": 8.71,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 91,
+      "support_pct": 8.71,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 90,
+      "support_pct": 8.61,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 90,
+      "support_pct": 8.61,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 89,
+      "support_pct": 8.52,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 89,
+      "support_pct": 8.52,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 88,
+      "support_pct": 8.42,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_DANGER",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 88,
+      "support_pct": 8.42,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 88,
+      "support_pct": 8.42,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe"
+      ],
+      "support": 87,
+      "support_pct": 8.33,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe"
+      ],
+      "support": 87,
+      "support_pct": 8.33,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_High|Soil_Dry|Plant_Safe",
+        "Salt_High|Soil_Dry|Plant_DANGER",
+        "Salt_High|Soil_Dry|Plant_Safe"
+      ],
+      "support": 86,
+      "support_pct": 8.23,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_High|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 86,
+      "support_pct": 8.23,
+      "type": "warning",
+      "label_vi": null
+    },
+    {
+      "pattern": [
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Mod|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe",
+        "Salt_Low|Soil_Wet|Plant_Safe"
+      ],
+      "support": 86,
+      "support_pct": 8.23,
+      "type": "warning",
+      "label_vi": null
+    }
+  ],
+  "lookback": 14,
+  "min_sup": 0.03
+}
