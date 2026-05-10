@@ -1,0 +1,3 @@
+dataset,rows,locations,start,end,positive_rate_pct
+train_2015_2022,14610,5,2015-01-01,2022-12-31,10.0548
+holdout_test_2023_2025,5480,5,2023-01-01,2025-12-31,12.8102

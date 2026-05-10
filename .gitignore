@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Google Earth Engine credentials (quan trọng — không commit)
+~/.config/earthengine/
+
+# Copernicus Marine credentials
+~/.copernicusmarine/
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Môi trường
+.env
+*.env
+
+# Claude Code
+.claude/
+
+# Nội bộ
+Strategy.md
+
+# SaltySeq demo — large binary/data files
+saltyseq-demo/backend/data/merged_final.csv
+saltyseq-demo/backend/data/predictions.db
+saltyseq-demo/backend/data/pipeline_status.json
+saltyseq-demo/backend/models/xgboost_model.json
+saltyseq-demo/backend/models/scaler.pkl
+saltyseq-demo/frontend/assets/*.jpg
+saltyseq-demo/frontend/assets/*.png
+saltyseq-demo/*.jpg
+saltyseq-demo/*.png

@@ -1,0 +1,33 @@
+# ============================================================
+# SaltySeq — Requirements (v2 Production Pipeline)
+# Capstone Project: Data Mining & Anomaly Detection — Mekong Delta
+# ============================================================
+# Install:  python -m pip install -r requirements.txt
+# Tested:   Python 3.11
+# ============================================================
+
+# --- Core Data Processing ---
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.11.0
+
+# --- Google Earth Engine ---
+# Requires: ee.Authenticate() (browser, one-time) +
+#           ee.Initialize(project='cs313project-489508')
+earthengine-api>=0.1.390
+
+# --- HTTP / Weather API (Open-Meteo, script2) ---
+requests>=2.31.0
+
+# --- Salinity: Copernicus Marine Service (optional, Method A only) ---
+# Uncomment if using real CMS salinity instead of synthetic proxy:
+# copernicusmarine>=1.3.0
+
+# --- Visualization (optional, for exploratory analysis) ---
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# --- Machine Learning (next phase) ---
+# scikit-learn>=1.3.0
+# xgboost>=2.0.0
+# prefixspan>=0.5.2
