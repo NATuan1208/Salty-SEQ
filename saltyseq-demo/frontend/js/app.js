@@ -85,6 +85,9 @@
     }, []);
 
     function renderPage() {
+      if (page === 'recommendations') {
+        return <MS.RecommendationsPage stations={stations} />;
+      }
       if (page === 'features') {
         return (
           <MS.FeaturesPage

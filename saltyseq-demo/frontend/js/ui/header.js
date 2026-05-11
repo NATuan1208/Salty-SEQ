@@ -49,6 +49,7 @@
     { id:'features', icon:'ti-database-search', label:'Đặc trưng'     },
     { id:'map',      icon:'ti-map-2',           label:'Bản đồ'        },
     { id:'about',    icon:'ti-info-circle',      label:'Về dự án'     },
+    { id: 'recommendations', label: 'Khuyến nghị', icon: 'ti-clipboard-list' }
   ];
 
   function Header({ pipeStatus, onTriggerPipeline, page, onSetPage }) {
