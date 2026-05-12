@@ -111,3 +111,38 @@ def get_feature_top10(features: dict) -> list[dict]:
         {**item, "value": features.get(item["feature"])}
         for item in _FEATURE_TOP10_BASE
     ]
+
+def generate_recommendations(features: dict, label: str) -> list[str]:
+    recs = []
+    sal = features.get("salinity_psu", 0)
+    ndvi_t = features.get("ndvi_tendency", 0)
+    
+    try: sal = float(sal) if sal is not None else 0.0
+    except: sal = 0.0
+    
+    try: ndvi_t = float(ndvi_t) if ndvi_t is not None else 0.0
+    except: ndvi_t = 0.0
+
+    if label == "DANGER":
+        if sal > 4.0:
+            recs.append("Độ mặn mương/sông ở mức rất cao (>4 PSU), tiến hành đóng cống ngăn mặn lập tức.")
+        elif sal > 2.0:
+            recs.append("Độ mặn vượt mức an toàn sinh lý của cây, ngừng bơm nước vào đồng.")
+        if ndvi_t < -0.02:
+            recs.append("Cây cối (NDVI) đang suy giảm thấy rõ, nên giảm stress cây bằng các loại vi lượng phun lá (không dùng qua rễ nếu khô hạn).")
+        recs.append("Ưu tiên dồn nước ngọt dự trữ (ao, mương tù) phục vụ tưới tiêu cầm chừng tối thiểu trong 72h tới.")
+    elif label == "WARNING":
+        if sal > 2.0:
+            recs.append("Phát hiện có xâm nhập mặn (>2 PSU) đi qua gần khu vực trạm, đặc biệt chú ý nếu có ý định sử dụng nguồn nước tưới.")
+        else:
+            recs.append("Sức chịu đựng của cây giảm do thời tiết (mặc dù độ mặn không quá cao), theo dõi sức khỏe cây để bổ sung nước/hạ nhiệt.")
+        if ndvi_t < 0:
+            recs.append("Xu suất tổng hợp diệp lục chững lại, cân nhắc giản cách ngày tưới tiêu.")
+        recs.append("Kiểm tra nước thủy đạo, đo mặn cầm tay 2 lần/tuần nếu lấy nước mặt.")
+    else:
+        recs.append("Khu vực canh tác đang ở ngưỡng An Toàn ổn định.")
+        recs.append("Duy trì lịch thời vụ canh tác và bổ sung dinh dưỡng theo kế hoạch định kỳ.")
+        if sal < 1.0:
+            recs.append("Tranh thủ mở cống lấy nước ngọt tự nhiên từ hệ thống khi mặn còn chưa vào sâu.")
+            
+    return recs

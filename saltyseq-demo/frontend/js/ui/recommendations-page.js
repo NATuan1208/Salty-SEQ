@@ -61,9 +61,9 @@
   function StationCard({ station }) {
     const rate30d   = station.stress_rate_30d   ?? 0;
     const rateTotal = station.stress_rate_total ?? 0;
-    const level = getLevel(rate30d);
+    const level = station._level;
     const cfg   = LEVEL_CONFIG[level];
-    const actions = getActions(level, rate30d, rateTotal);
+    const actions = station._api_actions || getActions(level, rate30d, rateTotal);
 
     return (
       <div style={{
@@ -120,6 +120,13 @@
           ))}
         </div>
 
+        {station._is_current && (
+           <div style={{fontSize: '11px', color: 'var(--teal-5)', background: 'color-mix(in srgb, var(--teal-5) 10%, var(--surface))', padding: '4px 8px', borderRadius: 'var(--r-sm)', marginBottom: '10px', display: 'inline-flex', alignItems: 'center', gap: '4px', border: '1px solid var(--border)'}}>
+             <i className="ti ti-activity" style={{fontSize: '12px'}}/>
+             Khuyến nghị theo ngữ cảnh phân tích hiện tại
+           </div>
+        )}
+
         {/* Actions */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           {actions.map((action, i) => (
@@ -137,13 +144,34 @@
     );
   }
 
-  function RecommendationsPage({ stations }) {
+  function RecommendationsPage({ stations, currentResult, selectedStation }) {
     const [filter, setFilter] = useState('all');
 
-    const enriched = stations.map(s => ({
-      ...s,
-      _level: getLevel(s.stress_rate_30d ?? 0),
-    }));
+    const enriched = stations.map(s => {
+      let logicLevel = getLevel(s.stress_rate_30d ?? 0);
+      let apiActions = null;
+      let isCurrent = false;
+
+      // override with context-aware data for current prediction target
+      if (currentResult && s.station_id === selectedStation) {
+        const lbl = (currentResult.label || '').toLowerCase();
+        if (lbl === 'danger') logicLevel = 'danger';
+        else if (lbl === 'warning') logicLevel = 'medium';
+        else logicLevel = 'safe';
+
+        if (currentResult.recommendations) {
+          apiActions = currentResult.recommendations;
+        }
+        isCurrent = true;
+      }
+
+      return {
+        ...s,
+        _level: logicLevel,
+        _api_actions: apiActions,
+        _is_current: isCurrent
+      };
+    });
 
     const filtered = filter === 'all'
       ? enriched

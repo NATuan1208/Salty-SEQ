@@ -11,6 +11,7 @@
     const [history,         setHistory]         = useState([]);
     const [mockMode,        setMockMode]        = useState(false);
     const [toast,           setToast]           = useState(null);
+    const [sessionPredictions, setSessionPredictions] = useState({});
     /* highlightFeature: feature key to scroll-to in FeaturesPage */
     const [highlightFeature, setHighlightFeature] = useState(null);
     const toastTimer = useRef(null);
@@ -46,7 +47,10 @@
       setResult(r);
       if (r) {
         setMockMode(r.mock);
-        if (stationId) setSelected(stationId);
+        if (stationId) {
+          setSelected(stationId);
+          setSessionPredictions(prev => ({ ...prev, [stationId]: r }));
+        }
         fetchHistory();
       }
     }, []);
@@ -86,7 +90,7 @@
 
     function renderPage() {
       if (page === 'recommendations') {
-        return <MS.RecommendationsPage stations={stations} />;
+        return <MS.RecommendationsPage stations={stations} currentResult={result} selectedStation={selected} />;
       }
       if (page === 'features') {
         return (
@@ -125,6 +129,7 @@
               stations={stations}
               selected={selected}
               onSelect={(sid) => setSelected(sid)}
+              currentPredictions={sessionPredictions}
             />
             {/* selectedStation keeps PredictionPanel in sync with map/list clicks */}
             <MS.PredictionPanel

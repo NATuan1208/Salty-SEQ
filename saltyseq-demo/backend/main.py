@@ -11,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from backend.database import init_db, save_prediction, get_history, delete_prediction, clear_history
-from backend.inference import load_artifacts, predict, get_label_and_confidence, get_feature_top10
+from backend.inference import load_artifacts, predict, get_label_and_confidence, get_feature_top10, generate_recommendations
 from backend.scheduler import start_scheduler, get_pipeline_status, trigger_pipeline
 from backend.spm_explainer import match_patterns
 
@@ -190,6 +190,7 @@ def api_predict(req: PredictRequest) -> dict:
     label, confidence = get_label_and_confidence(probability)
     feature_top10 = get_feature_top10(req.features)
     matched_patterns = match_patterns(req.station_id, req.date)
+    recommendations = generate_recommendations(req.features, label)
 
     save_prediction({
         "station_id": req.station_id,
@@ -210,6 +211,7 @@ def api_predict(req: PredictRequest) -> dict:
         "matched_patterns": matched_patterns,
         "feature_top10": feature_top10,
         "mock": mock,
+        "recommendations": recommendations
     }
 
 
