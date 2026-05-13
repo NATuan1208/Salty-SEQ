@@ -122,16 +122,12 @@ def _apply_edge_fill(series: pd.Series) -> tuple[pd.Series, pd.Series]:
 
     first_valid = valid_idx[0]
     last_valid = valid_idx[-1]
-    head_mask = out.isna() & (out.index <= first_valid)
-    tail_mask = out.isna() & (out.index >= last_valid)
+    edge_mask = out.isna() & ((out.index <= first_valid) | (out.index >= last_valid))
 
-    if head_mask.any():
-        out.loc[head_mask] = out.iloc[first_valid]
-        marker.loc[head_mask] = True
-
-    if tail_mask.any():
-        out.loc[tail_mask] = out.iloc[last_valid]
-        marker.loc[tail_mask] = True
+    if edge_mask.any():
+        edge_filled = out.ffill().bfill()
+        out.loc[edge_mask] = edge_filled.loc[edge_mask]
+        marker.loc[edge_mask] = True
 
     return out, marker
 
@@ -292,6 +288,37 @@ def merge_all(
     return merged
 
 
+def handle_outliers(df: pd.DataFrame) -> pd.DataFrame:
+    """Robust outlier handling using strict IQR clipping (Winsorization) per location."""
+    LOGGER.info("Handling extreme outliers (Winsorization).")
+    out = df.copy()
+
+    # Define features susceptible to sensor errors or extreme unphysical spikes
+    target_cols = [
+        "temp_max", "temp_min", "temp_mean", 
+        "precipitation", "wind_max", "salinity_psu",
+        "soil_moisture_surface", "soil_moisture_deep", "soil_temp"
+    ]
+    target_cols = [col for col in target_cols if col in out.columns]
+
+    for col in target_cols:
+        grp = out.groupby("location_id")[col]
+        
+        # Determine 5th and 95th percentiles and IQR
+        q1 = grp.transform(lambda x: x.quantile(0.05))
+        q3 = grp.transform(lambda x: x.quantile(0.95))
+        iqr = q3 - q1
+
+        # Use 3.0 * IQR to only cap true extreme anomalies, not natural high weather days
+        lower_bound = q1 - 3.0 * iqr
+        upper_bound = q3 + 3.0 * iqr
+
+        # Clip values strictly within our calculated functional bounds
+        out[col] = out[col].clip(lower=lower_bound, upper=upper_bound)
+
+    return out
+
+
 def _days_without_rain(series: pd.Series) -> pd.Series:
     """Count consecutive days with rainfall below 1 mm."""
     count = 0
@@ -430,30 +457,6 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
         errors="ignore",
     )
 
-    out["is_salinity_spike"] = (
-        (out["salinity_psu"] > 10) & (out["is_dry_season"] == 0)
-    ).astype(int)
-
-    # Prevent Data Leakage: Calculate maximums ONLY from the training dataset
-    train_max_stats = out[train_mask].groupby("location_id")[
-        ["ndvi", "salinity_psu", "soil_moisture_surface"]
-    ].max()
-
-    train_fallback_max = out.loc[
-        train_mask,
-        ["ndvi", "salinity_psu", "soil_moisture_surface"],
-    ].max()
-
-    ndvi_max = out["location_id"].map(train_max_stats["ndvi"]).fillna(train_ref["ndvi"].max()).clip(lower=0.01)
-    salinity_max = out["location_id"].map(train_max_stats["salinity_psu"]).fillna(train_fallback_max["salinity_psu"]).clip(lower=0.01)
-    soil_max = out["location_id"].map(train_max_stats["soil_moisture_surface"]).fillna(train_fallback_max["soil_moisture_surface"]).clip(lower=0.01)
-
-    out["crop_stress_score"] = (
-        (1 - (out["ndvi"] / ndvi_max).clip(upper=1.0)) * 0.4
-        + (out["salinity_psu"] / salinity_max) * 0.4
-        + (1 - (out["soil_moisture_surface"] / soil_max).clip(upper=1.0)) * 0.2
-    )
-
     return out
 
 
@@ -521,6 +524,7 @@ def main() -> pd.DataFrame:
     df_sat, df_weather, df_salinity = load_sources()
     df_daily_sat = align_to_daily(df_sat)
     df_merged = merge_all(df_daily_sat, df_weather, df_salinity)
+    df_merged = handle_outliers(df_merged)
     df_features = engineer_features(df_merged)
     df_final = final_cleanup(df_features)
 
