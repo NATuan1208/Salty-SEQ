@@ -2,8 +2,31 @@
 (function () {
   const { useState, useEffect, useCallback, useRef } = React;
 
+  const VALID_PAGES = ['predict', 'features', 'map', 'about', 'recommendations'];
+
+  function normalizePage(p) {
+    return VALID_PAGES.includes(p) ? p : 'predict';
+  }
+
+  function readPageFromUrl() {
+    try {
+      const u = new URL(window.location.href);
+      return normalizePage(u.searchParams.get('page'));
+    } catch {
+      return 'predict';
+    }
+  }
+
+  function urlForPage(p) {
+    const page = normalizePage(p);
+    const u = new URL(window.location.href);
+    if (page === 'predict') u.searchParams.delete('page');
+    else u.searchParams.set('page', page);
+    return u.toString();
+  }
+
   function App() {
-    const [page,            setPage]            = useState('predict');
+    const [page,            setPage]            = useState(() => readPageFromUrl());
     const [stations,        setStations]        = useState([]);
     const [selected,        setSelected]        = useState('');
     const [pipeStatus,      setPipeStatus]      = useState(null);
@@ -15,6 +38,28 @@
     /* highlightFeature: feature key to scroll-to in FeaturesPage */
     const [highlightFeature, setHighlightFeature] = useState(null);
     const toastTimer = useRef(null);
+
+    const setPageWithHistory = useCallback((nextPage, opts = {}) => {
+      const { replace = false } = opts;
+      const p = normalizePage(nextPage);
+      setPage(cur => {
+        const curNorm = normalizePage(cur);
+        if (curNorm === p) {
+          // Still normalize URL if needed
+          try {
+            const method = replace ? 'replaceState' : 'pushState';
+            window.history[method]({ page: p }, '', urlForPage(p));
+          } catch {}
+          return curNorm;
+        }
+
+        try {
+          const method = replace ? 'replaceState' : 'pushState';
+          window.history[method]({ page: p }, '', urlForPage(p));
+        } catch {}
+        return p;
+      });
+    }, []);
 
     /* Toast helper */
     const showToast = useCallback((message, type = 'info') => {
@@ -76,7 +121,26 @@
     /* Called by prediction.js when user clicks a feature label */
     MS.navigateToFeature = useCallback((featureKey) => {
       setHighlightFeature(featureKey);
-      setPage('features');
+      setPageWithHistory('features');
+    }, []);
+
+    /* Sync browser back/forward with tabs */
+    useEffect(() => {
+      // Ensure initial history state exists and URL is normalized
+      try {
+        const initial = readPageFromUrl();
+        window.history.replaceState({ page: initial }, '', urlForPage(initial));
+      } catch {}
+
+      function onPopState() {
+        const fromState = window.history.state && window.history.state.page;
+        const next = normalizePage(fromState || readPageFromUrl());
+        setPage(next);
+        if (next !== 'features') setHighlightFeature(null);
+      }
+
+      window.addEventListener('popstate', onPopState);
+      return () => window.removeEventListener('popstate', onPopState);
     }, []);
 
     /* Init */
@@ -157,7 +221,7 @@
           onTriggerPipeline={triggerPipeline}
           page={page}
           onSetPage={(p) => {
-            setPage(p);
+            setPageWithHistory(p);
             /* Clear highlight when navigating away from features manually */
             if (p !== 'features') setHighlightFeature(null);
           }}

@@ -94,15 +94,15 @@ def mock_predict(features: dict) -> float:
 
 
 def get_label_and_confidence(probability: float) -> tuple[str, str]:
-    if probability >= 0.6:
+    if probability >= 0.15:
         label = "DANGER"
-        confidence = "HIGH" if probability >= 0.75 else "MEDIUM"
-    elif probability >= 0.35:
+        confidence = "HIGH" if probability >= 0.25 else "MEDIUM"
+    elif probability >= 0.05:
         label = "WARNING"
         confidence = "MEDIUM"
     else:
         label = "SAFE"
-        confidence = "HIGH" if probability < 0.2 else "MEDIUM"
+        confidence = "HIGH" if probability < 0.03 else "MEDIUM"
     return label, confidence
 
 
@@ -111,6 +111,192 @@ def get_feature_top10(features: dict) -> list[dict]:
         {**item, "value": features.get(item["feature"])}
         for item in _FEATURE_TOP10_BASE
     ]
+
+
+def _safe_float(value, default: float | None = None) -> float | None:
+    try:
+        if value is None:
+            return default
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def generate_explanation(features: dict, probability: float, label: str) -> dict:
+    """Build a short, user-facing reason block for a prediction."""
+    sal = _safe_float(features.get("salinity_psu"), 0.0) or 0.0
+    sal_7d = _safe_float(features.get("salinity_7d_avg"))
+    ndvi = _safe_float(features.get("ndvi"))
+    ndvi_t = _safe_float(features.get("ndvi_tendency"), 0.0) or 0.0
+    ndvi_7d = _safe_float(features.get("ndvi_7d_avg"))
+    dist = _safe_float(features.get("distance_to_estuary_km"))
+    lst_ratio = _safe_float(features.get("lst_ndvi_ratio"))
+    dry_days = _safe_float(features.get("days_without_rain"))
+    precip_7d = _safe_float(features.get("precip_7d_sum"))
+
+    drivers: list[dict] = []
+    offsets: list[dict] = []
+
+    if ndvi_t <= -0.01:
+        drivers.append({
+            "feature": "ndvi_tendency",
+            "severity": "high",
+            "text": f"NDVI đang giảm mạnh ({ndvi_t:.4f}/ngày), cây có dấu hiệu suy giảm sức khỏe.",
+        })
+    elif ndvi_t < 0:
+        drivers.append({
+            "feature": "ndvi_tendency",
+            "severity": "medium",
+            "text": f"NDVI có xu hướng giảm nhẹ ({ndvi_t:.4f}/ngày).",
+        })
+    elif ndvi_t > 0.005:
+        offsets.append({
+            "feature": "ndvi_tendency",
+            "text": f"NDVI đang phục hồi ({ndvi_t:.4f}/ngày), giúp giảm rủi ro.",
+        })
+
+    if ndvi is not None and ndvi < 0.40:
+        drivers.append({
+            "feature": "ndvi",
+            "severity": "high",
+            "text": f"NDVI thấp ({ndvi:.3f}), thảm thực vật yếu hơn bình thường.",
+        })
+    elif ndvi is not None and ndvi < 0.55:
+        drivers.append({
+            "feature": "ndvi",
+            "severity": "medium",
+            "text": f"NDVI ở mức trung bình ({ndvi:.3f}), cần theo dõi thêm.",
+        })
+    elif ndvi is not None and ndvi >= 0.60:
+        offsets.append({
+            "feature": "ndvi",
+            "text": f"NDVI khá tốt ({ndvi:.3f}), cây vẫn giữ độ xanh ổn định.",
+        })
+
+    if sal >= 8:
+        drivers.append({
+            "feature": "salinity_psu",
+            "severity": "high",
+            "text": f"Độ mặn cao ({sal:.2f} PSU), vượt xa ngưỡng nhạy cảm của cây trồng.",
+        })
+    elif sal >= 4:
+        drivers.append({
+            "feature": "salinity_psu",
+            "severity": "medium",
+            "text": f"Độ mặn đáng chú ý ({sal:.2f} PSU), có thể gây stress nếu kéo dài.",
+        })
+    elif sal < 2:
+        offsets.append({
+            "feature": "salinity_psu",
+            "text": f"Độ mặn thấp ({sal:.2f} PSU), áp lực xâm nhập mặn hiện không lớn.",
+        })
+
+    if sal_7d is not None and sal_7d >= 4:
+        drivers.append({
+            "feature": "salinity_7d_avg",
+            "severity": "medium",
+            "text": f"Độ mặn trung bình 7 ngày vẫn cao ({sal_7d:.2f} PSU), rủi ro có tính kéo dài.",
+        })
+
+    if dist is not None and dist <= 10:
+        drivers.append({
+            "feature": "distance_to_estuary_km",
+            "severity": "medium",
+            "text": f"Trạm gần cửa biển ({dist:.1f} km), dễ chịu tác động khi mặn xâm nhập.",
+        })
+    elif dist is not None and dist >= 30:
+        offsets.append({
+            "feature": "distance_to_estuary_km",
+            "text": f"Trạm cách cửa biển khá xa ({dist:.1f} km), giảm bớt rủi ro mặn trực tiếp.",
+        })
+
+    if lst_ratio is not None and lst_ratio >= 65:
+        drivers.append({
+            "feature": "lst_ndvi_ratio",
+            "severity": "medium",
+            "text": f"Tỷ lệ LST/NDVI cao ({lst_ratio:.1f}), gợi ý cây chịu áp lực nhiệt hoặc thiếu nước.",
+        })
+
+    if dry_days is not None and dry_days >= 10:
+        drivers.append({
+            "feature": "days_without_rain",
+            "severity": "medium",
+            "text": f"Nhiều ngày không mưa liên tiếp ({dry_days:.0f} ngày), nguy cơ khô hạn tăng.",
+        })
+    elif precip_7d is not None and precip_7d >= 40:
+        offsets.append({
+            "feature": "precip_7d_sum",
+            "text": f"Lượng mưa 7 ngày khá tốt ({precip_7d:.1f} mm), có thể giảm áp lực hạn.",
+        })
+
+    if ndvi_7d is not None and ndvi is not None and ndvi < ndvi_7d - 0.02:
+        drivers.append({
+            "feature": "ndvi_7d_avg",
+            "severity": "medium",
+            "text": f"NDVI hiện tại thấp hơn trung bình 7 ngày ({ndvi:.3f} so với {ndvi_7d:.3f}).",
+        })
+
+    drivers = drivers[:4]
+    offsets = offsets[:2]
+    watchouts: list[dict] = []
+
+    summary_phrases = []
+    phrase_map = {
+        "ndvi_tendency": "NDVI đang giảm",
+        "ndvi": "NDVI thấp",
+        "salinity_psu": "độ mặn cao",
+        "salinity_7d_avg": "độ mặn cao kéo dài 7 ngày",
+        "distance_to_estuary_km": "trạm gần cửa biển",
+        "lst_ndvi_ratio": "áp lực nhiệt/thực vật cao",
+        "days_without_rain": "nhiều ngày không mưa",
+        "ndvi_7d_avg": "NDVI thấp hơn trung bình 7 ngày",
+    }
+    for item in drivers:
+        phrase = phrase_map.get(item["feature"])
+        if phrase and phrase not in summary_phrases:
+            summary_phrases.append(phrase)
+
+    if label == "SAFE":
+        watchouts = drivers[:3]
+        drivers = []
+        offset_phrases = []
+        offset_map = {
+            "ndvi_tendency": "NDVI đang phục hồi",
+            "ndvi": "NDVI còn tốt",
+            "salinity_psu": "độ mặn thấp",
+            "distance_to_estuary_km": "trạm cách xa cửa biển",
+            "precip_7d_sum": "mưa 7 ngày hỗ trợ giảm hạn",
+        }
+        for item in offsets:
+            phrase = offset_map.get(item["feature"])
+            if phrase and phrase not in offset_phrases:
+                offset_phrases.append(phrase)
+
+        if offset_phrases:
+            summary = (
+                "Dự báo AN TOÀN vì các tín hiệu tổng hợp vẫn nằm trong vùng rủi ro thấp; "
+                f"{', '.join(offset_phrases[:2])}."
+            )
+        elif watchouts:
+            summary = (
+                "Dự báo AN TOÀN vì hiện chưa đủ bằng chứng để chuyển sang cảnh báo. "
+                "Tuy vậy vẫn cần theo dõi các tín hiệu bất lợi bên dưới."
+            )
+        else:
+            summary = "Dự báo AN TOÀN vì các tín hiệu chính chưa cho thấy áp lực mặn, hạn hoặc suy giảm thực vật rõ rệt."
+    elif summary_phrases:
+        joined = ", ".join(summary_phrases[:3])
+        summary = f"Nguy cơ tăng vì {joined}."
+    else:
+        summary = "Kết quả an toàn vì các tín hiệu chính chưa cho thấy áp lực mặn, hạn hoặc suy giảm thực vật rõ rệt."
+
+    return {
+        "summary": summary,
+        "drivers": drivers,
+        "watchouts": watchouts,
+        "offsets": offsets,
+        "score_percent": round(probability * 100, 2),
+    }
 
 def generate_recommendations(features: dict, label: str) -> list[str]:
     recs = []

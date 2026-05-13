@@ -51,6 +51,42 @@
     );
   }
 
+  function PatternGroup({ title, type, patterns, defaultOpen }) {
+    const [open, setOpen] = useState(defaultOpen);
+    if (!patterns.length) return null;
+
+    const cfg = type === 'danger'
+      ? { icon: 'ti-alert-triangle', color: 'var(--danger-5)', bg: 'var(--danger-lt)', bd: 'var(--danger-bd)' }
+      : { icon: 'ti-alert-circle', color: 'var(--warn-5)', bg: 'var(--warn-lt)', bd: 'var(--warn-bd)' };
+
+    return (
+      <div className={`spm-group ${type}`}>
+        <button
+          className="spm-group-head"
+          onClick={() => setOpen(v => !v)}
+          style={{
+            color: cfg.color,
+            background: `color-mix(in srgb, ${cfg.bg} 42%, var(--surface))`,
+            borderColor: cfg.bd,
+          }}
+        >
+          <span>
+            <i className={`ti ${cfg.icon} ti-sm`} />
+            {title}
+          </span>
+          <span className="spm-group-count">{patterns.length}</span>
+          <i className={`ti ${open ? 'ti-chevron-up' : 'ti-chevron-down'} ti-sm`} />
+        </button>
+
+        {open && (
+          <div className="spm-group-body">
+            {patterns.map((p, i) => <PatternCard key={i} {...p} />)}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   /* ── Feature importance bar chart ── */
   function FeatureBars({ features }) {
     if (!features?.length) return (
@@ -145,6 +181,10 @@
 
   /* ── Right panel ── */
   function AnalysisPanel({ result, history, onDeleteHistory, onClearHistory }) {
+    const matchedPatterns = result?.matched_patterns || [];
+    const dangerPatterns = matchedPatterns.filter(p => p.type === 'danger');
+    const warningPatterns = matchedPatterns.filter(p => p.type !== 'danger');
+
     return (
       <div className="panel panel-right">
 
@@ -158,8 +198,23 @@
             )}
           </div>
 
-          {result?.matched_patterns?.length > 0
-            ? result.matched_patterns.map((p, i) => <PatternCard key={i} {...p} />)
+          {matchedPatterns.length > 0
+            ? (
+              <div className="spm-group-list">
+                <PatternGroup
+                  title="Nguy hiểm"
+                  type="danger"
+                  patterns={dangerPatterns}
+                  defaultOpen={dangerPatterns.length > 0}
+                />
+                <PatternGroup
+                  title="Cảnh báo"
+                  type="warning"
+                  patterns={warningPatterns}
+                  defaultOpen={dangerPatterns.length === 0}
+                />
+              </div>
+            )
             : (
               <div className="ph" style={{ border:'1px dashed var(--border)', borderRadius:'var(--r-md)', marginBottom:'12px' }}>
                 <i className="ti ti-microscope ph-icon" />

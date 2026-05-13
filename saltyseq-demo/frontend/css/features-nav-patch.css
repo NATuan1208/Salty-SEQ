@@ -47,10 +47,8 @@
 .fp-sidenav-item:not(.active):hover {
   background: color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 9%, var(--surface-hover));
   border-color: color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 25%, var(--border));
-  transform: translateX(4px);
-  box-shadow:
-    var(--sh-sm),
-    0 0 0 2px color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 10%, transparent);
+  transform: translateX(1px);
+  box-shadow: var(--sh-xs);
 }
 
 .fp-sidenav-item:not(.active):hover::before {
@@ -59,12 +57,10 @@
 
 /* ── ACTIVE ── */
 .fp-sidenav-item.active {
-  background: color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 11%, var(--surface));
-  border-color: color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 38%, var(--border));
-  transform: translateX(3px);
-  box-shadow:
-    var(--sh-sm),
-    0 0 0 3px color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 12%, transparent);
+  background: color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 8%, var(--surface));
+  border-color: color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 30%, var(--border));
+  transform: translateX(1px);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 8%, transparent);
 }
 
 .fp-sidenav-item.active::before {
@@ -81,7 +77,7 @@
 .fp-sidenav-item:hover .fp-nav-icon,
 .fp-sidenav-item.active .fp-nav-icon {
   color: var(--fp-nav-clr, var(--teal-5));
-  transform: scale(1.18);
+  transform: scale(1.06);
 }
 
 /* ── Label text ── */
@@ -161,5 +157,5 @@
 .fp-sidenav-item:hover .fp-nav-dot.is-top,
 .fp-sidenav-item.active .fp-nav-dot.is-top {
   opacity: 1;
-  box-shadow: 0 0 5px color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 50%, transparent) !important;
+  box-shadow: 0 0 3px color-mix(in srgb, var(--fp-nav-clr, var(--teal-5)) 30%, transparent) !important;
 }

@@ -22,8 +22,8 @@
   function HeaderWave() {
     return (
       <svg
-        style={{ position:'absolute', right:'160px', top:0, opacity:.12, pointerEvents:'none', height:'56px' }}
-        viewBox="0 0 200 56"
+        style={{ position:'absolute', right:'160px', top:0, opacity:.08, pointerEvents:'none', height:'50px' }}
+        viewBox="0 0 200 50"
         fill="none"
         preserveAspectRatio="xMidYMid meet"
       >
@@ -96,16 +96,6 @@
         <div className="hdr-spacer"/>
 
         <div className="hdr-right">
-          {/* Breadcrumb */}
-          <div className="hdr-breadcrumb">
-            <i className="ti ti-seeding ti-sm"/>
-            <span>ĐBSCL</span>
-            <i className="ti ti-chevron-right ti-xs"/>
-            <span>Bến Tre</span>
-            <i className="ti ti-chevron-right ti-xs"/>
-            <span className="hdr-breadcrumb-active">crop-stress</span>
-          </div>
-
           {/* Pipeline status */}
           <div className="pipe-pill">
             <div className={`sdot ${running ? 'running' : state}`}/>

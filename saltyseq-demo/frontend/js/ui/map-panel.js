@@ -59,7 +59,7 @@
       stations.forEach(s => {
         const pred = currentPredictions[s.station_id];
         const rate = pred ? pred.probability : (s.stress_rate_30d ?? 0.1);
-        const col  = pred 
+        const col  = pred
           ? (pred.label === 'DANGER' ? '#C82020' : pred.label === 'WARNING' ? '#C48020' : '#0FA860')
           : (rate >= 0.15 ? '#C82020' : rate >= 0.05 ? '#C48020' : '#0FA860');
         const isSel = s.station_id === selected;
@@ -107,7 +107,7 @@
         {stations.map(s => {
           const pred = currentPredictions[s.station_id];
           const rate = pred ? pred.probability : (s.stress_rate_30d ?? 0.1);
-          const col  = pred 
+          const col  = pred
             ? (pred.label === 'DANGER' ? '#C82020' : pred.label === 'WARNING' ? '#C48020' : '#0FA860')
             : (rate >= 0.15 ? '#C82020' : rate >= 0.05 ? '#C48020' : '#0FA860');
           const isSel = s.station_id === selected;

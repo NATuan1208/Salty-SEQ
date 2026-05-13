@@ -81,7 +81,7 @@
     const sel = stations.find(s => s.station_id === selected);
 
     return (
-      <div style={{ display:'flex', height:'calc(100vh - 56px)', overflow:'hidden' }}>
+      <div style={{ display:'flex', height:'calc(100vh - 50px)', overflow:'hidden' }}>
         {/* Sidebar */}
         <div style={{
           width:'280px', flexShrink:0,
@@ -171,7 +171,7 @@
             position:'absolute', top:'14px', right:'14px', zIndex:800,
             background:'rgba(244,246,240,.92)', backdropFilter:'blur(10px)',
             border:'1px solid var(--border-md)', borderRadius:'var(--r-md)',
-            padding:'11px 14px', boxShadow:'var(--sh-lg)',
+            padding:'11px 14px', boxShadow:'var(--sh-sm)',
             fontFamily:'var(--ff-body)', fontSize:'12px', color:'var(--ink-3)',
             maxWidth:'200px',
           }}>
@@ -243,7 +243,7 @@
         display:'flex', flexDirection:'column', gap:'8px',
         transition:'all .2s ease',
       }}
-      onMouseEnter={e => { e.currentTarget.style.transform='translateY(-3px)'; e.currentTarget.style.boxShadow='var(--sh-lg)'; }}
+      onMouseEnter={e => { e.currentTarget.style.transform='translateY(-1px)'; e.currentTarget.style.boxShadow='var(--sh-md)'; }}
       onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='var(--sh-sm)'; }}
       >
         <div style={{ display:'flex', alignItems:'center', gap:'9px' }}>
@@ -265,7 +265,7 @@
 
   function AboutPage() {
     return (
-      <div style={{ overflowY:'auto', height:'calc(100vh - 56px)' }}>
+      <div style={{ overflowY:'auto', height:'calc(100vh - 50px)' }}>
 
         {/* Hero banner */}
         <div style={{
@@ -308,6 +308,31 @@
 
         <div style={{ padding:'28px 36px', maxWidth:'1100px', margin:'0 auto' }}>
 
+          {/* Pipeline overview */}
+          <div style={{ marginBottom:'32px' }}>
+            <div style={{ fontFamily:'var(--ff-heading)', fontSize:'20px', fontWeight:700, color:'var(--ink-1)', marginBottom:'14px', display:'flex', alignItems:'center', gap:'8px' }}>
+              <i className="ti ti-route" style={{ color:'var(--teal-5)' }}/> Sơ đồ pipeline
+            </div>
+            <div className="pipeline-flow">
+              {[
+                ['Nguồn dữ liệu', 'MODIS, Open-Meteo, GEE, quan trắc mặn', 'ti-database'],
+                ['Feature engineering', '46 đặc trưng theo trạm/ngày', 'ti-adjustments-horizontal'],
+                ['XGBoost', 'Dự báo xác suất stress cây trồng', 'ti-chart-histogram'],
+                ['PrefixSpan', 'Tìm chuỗi cảnh báo trong 14 ngày', 'ti-timeline'],
+                ['Khuyến nghị', 'Ưu tiên hành động theo mức rủi ro', 'ti-clipboard-list'],
+              ].map(([title, desc, icon], i, arr) => (
+                <React.Fragment key={title}>
+                  <div className="pipeline-step">
+                    <div className="pipeline-icon"><i className={`ti ${icon}`} /></div>
+                    <div className="pipeline-title">{title}</div>
+                    <div className="pipeline-desc">{desc}</div>
+                  </div>
+                  {i < arr.length - 1 && <div className="pipeline-arrow"><i className="ti ti-arrow-right" /></div>}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+
           {/* Model metrics */}
           <div style={{ marginBottom:'32px' }}>
             <div style={{ fontFamily:'var(--ff-heading)', fontSize:'20px', fontWeight:700, color:'var(--ink-1)', marginBottom:'16px', display:'flex', alignItems:'center', gap:'8px' }}>
@@ -323,7 +348,7 @@
               borderRadius:'var(--r-md)', fontFamily:'var(--ff-body)', fontSize:'12px', color:'var(--ink-3)',
               display:'flex', gap:'20px', flexWrap:'wrap',
             }}>
-              <span><strong style={{ color:'var(--ink-2)' }}>Ngưỡng quyết định:</strong> 0.5</span>
+              <span><strong style={{ color:'var(--ink-2)' }}>Ngưỡng rủi ro:</strong> Cảnh báo ≥5% · Nguy hiểm ≥15%</span>
               <span><strong style={{ color:'var(--ink-2)' }}>Scale pos weight:</strong> 8.946 (class imbalance ~10% positive)</span>
               <span><strong style={{ color:'var(--ink-2)' }}>Train/Test split:</strong> ≤ 2022-12-31 / 2023-01-01 → 2025</span>
               <span><strong style={{ color:'var(--ink-2)' }}>Features:</strong> 46 chiều đa nguồn</span>
@@ -447,7 +472,7 @@
                     display:'flex', gap:'12px', alignItems:'flex-start',
                     transition:'all .2s ease',
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='var(--sh-md)'; }}
+                  onMouseEnter={e => { e.currentTarget.style.transform='translateY(-1px)'; e.currentTarget.style.boxShadow='var(--sh-sm)'; }}
                   onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='var(--sh-xs)'; }}
                   >
                     <div style={{

@@ -65,14 +65,14 @@
   --safe-bd: #70DDB0;
 
   /* ── Shadows ── */
-  --sh-xs: 0 1px 2px rgba(30,50,15,.05);
-  --sh-sm: 0 1px 4px rgba(30,50,15,.08), 0 1px 2px rgba(30,50,15,.04);
-  --sh-md: 0 4px 12px rgba(30,50,15,.10), 0 2px 4px rgba(30,50,15,.05);
-  --sh-lg: 0 10px 24px rgba(30,50,15,.12), 0 4px 8px rgba(30,50,15,.05);
-  --sh-xl: 0 20px 40px rgba(30,50,15,.14), 0 8px 16px rgba(30,50,15,.06);
-  --sh-gold:   0 4px 16px rgba(180,120,24,.30);
-  --sh-teal:   0 4px 16px rgba(26,136,152,.22);
-  --sh-danger: 0 4px 16px rgba(200,32,32,.22);
+  --sh-xs: 0 1px 1px rgba(30,50,15,.04);
+  --sh-sm: 0 1px 3px rgba(30,50,15,.06);
+  --sh-md: 0 3px 8px rgba(30,50,15,.08);
+  --sh-lg: 0 8px 18px rgba(30,50,15,.10);
+  --sh-xl: 0 14px 30px rgba(30,50,15,.12);
+  --sh-gold:   0 3px 10px rgba(180,120,24,.18);
+  --sh-teal:   0 3px 10px rgba(26,136,152,.15);
+  --sh-danger: 0 3px 10px rgba(200,32,32,.15);
 
   /* ── Radius ── */
   --r-xs:   4px;

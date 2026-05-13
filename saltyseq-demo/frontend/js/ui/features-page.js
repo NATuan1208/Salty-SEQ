@@ -292,7 +292,7 @@
   }
 
   /* Animating bar that triggers on mount */
-  function ImportanceBar({ importance, maxImportance = 245, color }) {
+  function ImportanceBar({ importance, maxImportance = 245, color, showValue = true }) {
     const [width, setWidth] = useState(0);
     useEffect(() => {
       const t = setTimeout(() => setWidth((importance / maxImportance) * 100), 80);
@@ -308,7 +308,9 @@
             transition: 'width 1.1s cubic-bezier(.16,1,.3,1)',
           }}
         />
-        <span className="fp-imp-val" style={{ color }}>{importance}</span>
+        {showValue && (
+          <span className="fp-imp-val" style={{ color }}>{importance}</span>
+        )}
       </div>
     );
   }
@@ -346,7 +348,7 @@
   /* ══════════════════════════════════════════════
      FEATURE CARD — rich hover + expand animation
   ══════════════════════════════════════════════ */
-  function FeatureCard({ feature, group, isHighlighted, cardRef, index }) {
+  function FeatureCard({ feature, group, isHighlighted, cardRef, index, collapseSignal }) {
     const [open, setOpen] = useState(isHighlighted);
     const [hovered, setHovered] = useState(false);
     const [justOpened, setJustOpened] = useState(false);
@@ -360,6 +362,7 @@
     }, []);
 
     useEffect(() => { if (isHighlighted) setOpen(true); }, [isHighlighted]);
+    useEffect(() => { if (!isHighlighted) setOpen(false); }, [collapseSignal]);
 
     const handleToggle = useCallback(() => {
       const opening = !open;
@@ -388,9 +391,9 @@
               : '1px solid var(--border)',
           background: isHighlighted ? group.colorLight : 'var(--surface)',
           boxShadow: isHighlighted
-            ? `0 0 0 3px ${group.colorGlow}, var(--sh-md)`
+            ? `0 0 0 2px ${group.colorGlow}, var(--sh-sm)`
             : hovered
-              ? `0 6px 24px ${group.colorGlow}, var(--sh-md)`
+              ? `0 3px 12px ${group.colorGlow}, var(--sh-sm)`
               : 'var(--sh-xs)',
           transform: visible
             ? hovered ? 'translateY(-2px) scale(1.005)' : 'translateY(0) scale(1)'
@@ -501,7 +504,7 @@
                   </span>
                   <span style={{ fontFamily: 'var(--ff-mono)', fontSize: '11px', fontWeight: 700, color: group.color }}>{feature.importance}</span>
                 </div>
-                <ImportanceBar importance={feature.importance} color={group.color} />
+                <ImportanceBar importance={feature.importance} color={group.color} showValue={false} />
               </div>
             )}
 
@@ -546,7 +549,7 @@
   /* ══════════════════════════════════════════════
      GROUP SECTION — hover glow on entire group
   ══════════════════════════════════════════════ */
-  function GroupSection({ group, highlightKey, highlightRef, index }) {
+  function GroupSection({ group, highlightKey, highlightRef, index, collapseSignal }) {
     const [hovered, setHovered] = useState(false);
     const [visible, setVisible] = useState(false);
 
@@ -589,8 +592,8 @@
               style={{
                 background: group.colorLight,
                 border: `2px solid ${hovered ? group.color : group.colorBorder}`,
-                boxShadow: hovered ? `0 0 0 5px ${group.colorGlow}, var(--sh-md)` : 'var(--sh-xs)',
-                transform: hovered ? 'rotate(-4deg) scale(1.08)' : 'rotate(0deg) scale(1)',
+                boxShadow: hovered ? `0 0 0 3px ${group.colorGlow}, var(--sh-sm)` : 'var(--sh-xs)',
+                transform: hovered ? 'rotate(-2deg) scale(1.03)' : 'rotate(0deg) scale(1)',
                 transition: 'all .35s var(--ease)',
               }}
             >
@@ -644,13 +647,14 @@
         {/* Feature cards */}
         {group.features.map((f, i) => (
           <FeatureCard
-            key={f.key}
-            feature={f}
-            group={group}
-            isHighlighted={f.key === highlightKey}
-            cardRef={f.key === highlightKey ? highlightRef : null}
-            index={i}
-          />
+                key={f.key}
+                feature={f}
+                group={group}
+                isHighlighted={f.key === highlightKey}
+                cardRef={f.key === highlightKey ? highlightRef : null}
+                index={i}
+                collapseSignal={collapseSignal}
+              />
         ))}
       </section>
     );
@@ -738,6 +742,7 @@
     const [searchQ, setSearchQ] = useState('');
     const [pageVisible, setPageVisible] = useState(false);
     const [activeGroup, setActiveGroup] = useState(FEATURE_GROUPS_DATA[0]?.id || '');
+    const [collapseSignal, setCollapseSignal] = useState(0);
     const highlightRef = useRef(null);
 
     useEffect(() => {
@@ -774,7 +779,7 @@
 
     return (
       <div style={{
-        display: 'flex', height: 'calc(100vh - 56px)', overflow: 'hidden',
+        display: 'flex', height: 'calc(100vh - 50px)', overflow: 'hidden',
         opacity: pageVisible ? 1 : 0,
         transform: pageVisible ? 'translateY(0)' : 'translateY(10px)',
         transition: 'opacity .4s var(--ease), transform .4s var(--ease)',
@@ -883,6 +888,7 @@
                 highlightKey={highlightFeature}
                 highlightRef={highlightRef}
                 index={i}
+                collapseSignal={collapseSignal}
               />
             ))
           )}

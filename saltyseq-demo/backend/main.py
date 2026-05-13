@@ -2,7 +2,7 @@ import json
 import logging
 import math
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
@@ -11,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from backend.database import init_db, save_prediction, get_history, delete_prediction, clear_history
-from backend.inference import load_artifacts, predict, get_label_and_confidence, get_feature_top10, generate_recommendations
+from backend.inference import load_artifacts, predict, get_label_and_confidence, get_feature_top10, generate_recommendations, generate_explanation
 from backend.scheduler import start_scheduler, get_pipeline_status, trigger_pipeline
 from backend.spm_explainer import match_patterns
 
@@ -129,6 +129,65 @@ def _default_features(station_id: str, date: str) -> dict:
     }
 
 
+def _coerce_float(value, fallback: float | None = None) -> float | None:
+    try:
+        if value is None:
+            return fallback
+        number = float(value)
+        if math.isnan(number):
+            return fallback
+        return number
+    except (TypeError, ValueError):
+        return fallback
+
+
+def _is_missing(value) -> bool:
+    try:
+        return value is None or math.isnan(float(value))
+    except (TypeError, ValueError):
+        return False
+
+
+def _trend_default_features(station_id: str, date: str) -> dict:
+    """Deterministic demo fallback used when merged_final.csv is unavailable."""
+    features = _default_features(station_id, date)
+    dt = datetime.strptime(date, "%Y-%m-%d")
+    info = STATIONS[station_id]
+    seasonal = math.sin((dt.timetuple().tm_yday - 35) / 365 * 2 * math.pi)
+    coastal = max(0.0, 1.0 - info["distance_to_estuary_km"] / 45.0)
+    salinity = 6.0 + 15.0 * max(seasonal, 0) + 7.0 * coastal
+    ndvi = 0.64 - 0.16 * max(seasonal, 0) - 0.06 * coastal
+    features.update({
+        "salinity_psu": round(salinity, 3),
+        "salinity_7d_avg": round(salinity * 0.96, 3),
+        "salinity_7d_median": round(salinity * 0.94, 3),
+        "salinity_tendency": round(0.02 * seasonal, 4),
+        "ndvi": round(ndvi, 4),
+        "ndvi_7d_avg": round(ndvi + 0.01, 4),
+        "ndvi_lag_1": round(ndvi + 0.004, 4),
+        "ndvi_lag_7": round(ndvi + 0.018, 4),
+        "ndvi_tendency": round(-0.006 * max(seasonal, 0), 5),
+        "lst": round(31.0 + 5.0 * max(seasonal, 0), 2),
+    })
+    features["lst_ndvi_ratio"] = round(features["lst"] / max(features["ndvi"], 0.05), 3)
+    return features
+
+
+def _trend_point(station_id: str, station_name: str, date: str, features: dict) -> dict:
+    pred = predict(features)
+    probability = _coerce_float(pred.get("probability"), 0.0) or 0.0
+    label, _confidence = get_label_and_confidence(probability)
+    return {
+        "station_id": station_id,
+        "station_name": station_name,
+        "date": date,
+        "salinity_psu": _coerce_float(features.get("salinity_psu")),
+        "ndvi": _coerce_float(features.get("ndvi")),
+        "stress_probability": probability,
+        "label": label,
+    }
+
+
 # ─── API Routes ────────────────────────────────────────────────────────────────
 
 @app.get("/api/stations")
@@ -178,6 +237,75 @@ def api_get_data(station_id: str, date: str) -> dict:
         return _default_features(station_id, date)
 
 
+@app.get("/api/trends")
+def api_get_trends(date: str, days: int = 30, station_id: str | None = None) -> dict:
+    if days not in (7, 30, 90):
+        raise HTTPException(status_code=400, detail="days must be one of 7, 30, or 90")
+    if station_id is not None and station_id not in STATIONS:
+        raise HTTPException(status_code=404, detail="Station not found")
+
+    try:
+        end_date = datetime.strptime(date, "%Y-%m-%d").date()
+    except ValueError:
+        raise HTTPException(status_code=400, detail="date must use YYYY-MM-DD")
+
+    start_date = end_date - timedelta(days=days - 1)
+    station_ids = [station_id] if station_id else list(STATIONS.keys())
+    series_by_station = {
+        sid: {
+            "station_id": sid,
+            "station_name": STATIONS[sid]["name"],
+            "points": [],
+        }
+        for sid in station_ids
+    }
+
+    csv_path = DATA_DIR / "merged_final.csv"
+    if csv_path.exists():
+        try:
+            import pandas as pd
+            df = pd.read_csv(csv_path)
+            df["date"] = pd.to_datetime(df["date"], errors="coerce").dt.date
+            df = df[
+                (df["station_id"].isin(station_ids))
+                & (df["date"] >= start_date)
+                & (df["date"] <= end_date)
+            ].sort_values(["station_id", "date"])
+
+            for _idx, row in df.iterrows():
+                sid = row["station_id"]
+                features = {k: row.get(k) for k in FEATURE_COLUMNS}
+                for key, value in _default_features(sid, row["date"].isoformat()).items():
+                    if _is_missing(features.get(key)):
+                        features[key] = value
+                series_by_station[sid]["points"].append(
+                    _trend_point(sid, STATIONS[sid]["name"], row["date"].isoformat(), features)
+                )
+        except Exception as e:
+            logger.warning("Failed to read trend CSV for %s/%s: %s", station_id or "all", date, e)
+
+    # Fill missing dates so the chart remains useful in demo mode or sparse CSV ranges.
+    for sid in station_ids:
+        existing = {p["date"] for p in series_by_station[sid]["points"]}
+        for offset in range(days):
+            dt = start_date + timedelta(days=offset)
+            ds = dt.isoformat()
+            if ds not in existing:
+                features = _trend_default_features(sid, ds)
+                series_by_station[sid]["points"].append(
+                    _trend_point(sid, STATIONS[sid]["name"], ds, features)
+                )
+        series_by_station[sid]["points"].sort(key=lambda p: p["date"])
+
+    return {
+        "date": date,
+        "days": days,
+        "start_date": start_date.isoformat(),
+        "end_date": end_date.isoformat(),
+        "series": list(series_by_station.values()),
+    }
+
+
 @app.post("/api/predict")
 def api_predict(req: PredictRequest) -> dict:
     if req.station_id not in STATIONS:
@@ -189,6 +317,7 @@ def api_predict(req: PredictRequest) -> dict:
 
     label, confidence = get_label_and_confidence(probability)
     feature_top10 = get_feature_top10(req.features)
+    explanation = generate_explanation(req.features, probability, label)
     matched_patterns = match_patterns(req.station_id, req.date)
     recommendations = generate_recommendations(req.features, label)
 
@@ -207,9 +336,11 @@ def api_predict(req: PredictRequest) -> dict:
         "probability": probability,
         "label": label,
         "confidence": confidence,
-        "threshold": 0.5,
+        "threshold": 0.05,
+        "risk_thresholds": {"warning": 0.05, "danger": 0.15},
         "matched_patterns": matched_patterns,
         "feature_top10": feature_top10,
+        "explanation": explanation,
         "mock": mock,
         "recommendations": recommendations
     }
