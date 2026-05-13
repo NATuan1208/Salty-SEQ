@@ -124,7 +124,16 @@
 
   /* ── History table ── */
   function HistoryTable({ history, onDelete, onClearAll }) {
-    if (!history.length) return (
+    const displayHistory = [];
+    const seen = new Set();
+    history.forEach(h => {
+      const key = `${h.station_id || h.station_name}-${h.date}`;
+      if (seen.has(key) || displayHistory.length >= 5) return;
+      seen.add(key);
+      displayHistory.push(h);
+    });
+
+    if (!displayHistory.length) return (
       <div className="ph" style={{ border:'1px dashed var(--border)', borderRadius:'var(--r-md)' }}>
         <i className="ti ti-history ph-icon" />
         <span>Chưa có lịch sử dự báo</span>
@@ -135,7 +144,7 @@
       <div>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'8px' }}>
           <span style={{ fontFamily:'var(--ff-mono)', fontSize:'10.5px', color:'var(--ink-4)' }}>
-            {history.length} records
+            {displayHistory.length} gần nhất
           </span>
           <button className="btn-sm danger" onClick={onClearAll}>
             <i className="ti ti-trash ti-sm" /> Xóa tất cả
@@ -152,7 +161,7 @@
             </tr>
           </thead>
           <tbody>
-            {history.slice(0, 12).map(h => (
+            {displayHistory.map(h => (
               <tr key={h.id}>
                 <td style={{ fontFamily:'var(--ff-mono)', fontSize:'11px', color:'var(--ink-4)' }}>
                   {h.date}

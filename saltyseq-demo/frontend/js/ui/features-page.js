@@ -348,7 +348,7 @@
   /* ══════════════════════════════════════════════
      FEATURE CARD — rich hover + expand animation
   ══════════════════════════════════════════════ */
-  function FeatureCard({ feature, group, isHighlighted, cardRef, index, collapseSignal }) {
+  function FeatureCard({ feature, group, isHighlighted, cardRef, index }) {
     const [open, setOpen] = useState(isHighlighted);
     const [hovered, setHovered] = useState(false);
     const [justOpened, setJustOpened] = useState(false);
@@ -362,7 +362,6 @@
     }, []);
 
     useEffect(() => { if (isHighlighted) setOpen(true); }, [isHighlighted]);
-    useEffect(() => { if (!isHighlighted) setOpen(false); }, [collapseSignal]);
 
     const handleToggle = useCallback(() => {
       const opening = !open;
@@ -549,7 +548,7 @@
   /* ══════════════════════════════════════════════
      GROUP SECTION — hover glow on entire group
   ══════════════════════════════════════════════ */
-  function GroupSection({ group, highlightKey, highlightRef, index, collapseSignal }) {
+  function GroupSection({ group, highlightKey, highlightRef, index }) {
     const [hovered, setHovered] = useState(false);
     const [visible, setVisible] = useState(false);
 
@@ -653,7 +652,6 @@
                 isHighlighted={f.key === highlightKey}
                 cardRef={f.key === highlightKey ? highlightRef : null}
                 index={i}
-                collapseSignal={collapseSignal}
               />
         ))}
       </section>
@@ -742,7 +740,6 @@
     const [searchQ, setSearchQ] = useState('');
     const [pageVisible, setPageVisible] = useState(false);
     const [activeGroup, setActiveGroup] = useState(FEATURE_GROUPS_DATA[0]?.id || '');
-    const [collapseSignal, setCollapseSignal] = useState(0);
     const highlightRef = useRef(null);
 
     useEffect(() => {
@@ -888,7 +885,6 @@
                 highlightKey={highlightFeature}
                 highlightRef={highlightRef}
                 index={i}
-                collapseSignal={collapseSignal}
               />
             ))
           )}

@@ -348,7 +348,7 @@ def api_predict(req: PredictRequest) -> dict:
 
 @app.get("/api/history")
 def api_get_history() -> list[dict]:
-    return get_history(50)
+    return get_history(5)
 
 
 @app.delete("/api/history/all")

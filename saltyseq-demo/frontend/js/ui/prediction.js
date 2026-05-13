@@ -583,6 +583,7 @@
   }
 
   function TrendPanel({ station, date, onShowToast }) {
+    const [open, setOpen] = useState(false);
     const [days, setDays] = useState(30);
     const [scope, setScope] = useState('station');
     const [metric, setMetric] = useState('stress_probability');
@@ -590,6 +591,7 @@
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
+      if (!open) return;
       if (!date || (scope === 'station' && !station)) return;
       let cancelled = false;
       async function loadTrend() {
@@ -606,54 +608,62 @@
       }
       loadTrend();
       return () => { cancelled = true; };
-    }, [station, date, days, scope]);
+    }, [open, station, date, days, scope]);
 
     const series = data?.series || [];
 
     return (
-      <div className="card trend-card">
-        <div className="card-title trend-title">
-          <i className="ti ti-chart-line ti-sm" style={{ color:'var(--teal-5)' }}/>
-          Xu hướng nhiều ngày / nhiều trạm
+      <div className={`card trend-card${open ? ' open' : ' collapsed'}`}>
+        <button className="trend-collapse-head" onClick={() => setOpen(v => !v)}>
+          <span>
+            <i className="ti ti-chart-line ti-sm" style={{ color:'var(--teal-5)' }}/>
+            Xem xu hướng 7/30/90 ngày
+          </span>
           {loading && <span className="trend-loading">Đang tải...</span>}
-        </div>
-        <div className="trend-toolbar">
-          <div className="trend-seg">
-            {[7, 30, 90].map(n => (
-              <button key={n} className={days === n ? 'active' : ''} onClick={() => setDays(n)}>{n} ngày</button>
-            ))}
-          </div>
-          <div className="trend-seg">
-            <button className={scope === 'station' ? 'active' : ''} onClick={() => setScope('station')}>Một trạm</button>
-            <button className={scope === 'all' ? 'active' : ''} onClick={() => setScope('all')}>5 trạm</button>
-          </div>
-        </div>
+          <i className={`ti ${open ? 'ti-chevron-up' : 'ti-chevron-down'} ti-sm`} />
+        </button>
 
-        {scope === 'station' ? (
-          <div className="trend-grid-cards">
-            {Object.keys(TREND_METRICS).map(m => (
-              <div key={m} className="trend-mini">
-                <div className="trend-mini-head">
-                  <span>{TREND_METRICS[m].label}</span>
-                  <TrendSummary series={series} metric={m}/>
-                </div>
-                <TrendChart series={series} metric={m} height={122}/>
-              </div>
-            ))}
-          </div>
-        ) : (
+        {open && (
           <>
-            <div className="trend-metric-tabs">
-              {Object.entries(TREND_METRICS).map(([k, m]) => (
-                <button key={k} className={metric === k ? 'active' : ''} onClick={() => setMetric(k)}>{m.label}</button>
-              ))}
+            <div className="trend-toolbar">
+              <div className="trend-seg">
+                {[7, 30, 90].map(n => (
+                  <button key={n} className={days === n ? 'active' : ''} onClick={() => setDays(n)}>{n} ngày</button>
+                ))}
+              </div>
+              <div className="trend-seg">
+                <button className={scope === 'station' ? 'active' : ''} onClick={() => setScope('station')}>Một trạm</button>
+                <button className={scope === 'all' ? 'active' : ''} onClick={() => setScope('all')}>5 trạm</button>
+              </div>
             </div>
-            <TrendChart series={series} metric={metric} height={176}/>
-            <div className="trend-legend">
-              {series.map((s, i) => (
-                <span key={s.station_id}><i style={{ background:['#0D9488', '#D97706', '#2563EB', '#7C3AED', '#DC2626'][i % 5] }}/>{s.station_name}</span>
-              ))}
-            </div>
+
+            {scope === 'station' ? (
+              <div className="trend-grid-cards">
+                {Object.keys(TREND_METRICS).map(m => (
+                  <div key={m} className="trend-mini">
+                    <div className="trend-mini-head">
+                      <span>{TREND_METRICS[m].label}</span>
+                      <TrendSummary series={series} metric={m}/>
+                    </div>
+                    <TrendChart series={series} metric={m} height={122}/>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <>
+                <div className="trend-metric-tabs">
+                  {Object.entries(TREND_METRICS).map(([k, m]) => (
+                    <button key={k} className={metric === k ? 'active' : ''} onClick={() => setMetric(k)}>{m.label}</button>
+                  ))}
+                </div>
+                <TrendChart series={series} metric={metric} height={176}/>
+                <div className="trend-legend">
+                  {series.map((s, i) => (
+                    <span key={s.station_id}><i style={{ background:['#0D9488', '#D97706', '#2563EB', '#7C3AED', '#DC2626'][i % 5] }}/>{s.station_name}</span>
+                  ))}
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
