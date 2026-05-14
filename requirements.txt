@@ -1,0 +1,11 @@
+fastapi>=0.110
+uvicorn[standard]>=0.27
+pydantic>=2.0
+xgboost>=2.0
+scikit-learn>=1.4
+pandas>=2.0
+numpy>=1.26
+apscheduler>=3.10
+aiofiles>=23.0
+prefixspan>=0.5
+torch>=2.0

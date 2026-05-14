@@ -1,0 +1,5 @@
+{
+  "lookback": 1,
+  "n_features": 71,
+  "framework": "torch"
+}

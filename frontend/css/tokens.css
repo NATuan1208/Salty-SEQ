@@ -1,0 +1,148 @@
+/* ═══════════════════════════════════════════════════
+   DESIGN TOKENS — Mekong Sentinel
+   Palette: Sage & Harvest — nông nghiệp ĐBSCL
+   Inspired by: healthy rice fields, Mekong river
+═══════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* ── Backgrounds (warm sage-green, không quá trắng) ── */
+  --page:          #E9EDE3;   /* sage field bg */
+  --surface:       #F4F6F0;   /* card surface   */
+  --surface-2:     #EEF1E8;   /* panel bg       */
+  --surface-3:     #E5E9DD;   /* subtle hover   */
+  --surface-hover: #DDE3D4;   /* active hover   */
+  --surface-glass: rgba(244, 246, 240, 0.82);
+
+  /* ── Borders ── */
+  --border:     rgba(55, 80, 35, 0.10);
+  --border-md:  rgba(55, 80, 35, 0.18);
+  --border-str: rgba(55, 80, 35, 0.30);
+
+  /* ── Text (deep earthy green) ── */
+  --ink-1: #1B2A12;   /* titles       */
+  --ink-2: #2E4520;   /* body         */
+  --ink-3: #587A40;   /* muted        */
+  --ink-4: #8AAC6A;   /* placeholder  */
+
+  /* ── Primary: Forest green (brand) ── */
+  --green:    #285C1A;
+  --green-5:  #3A8025;
+  --green-6:  #4A9E32;
+  --green-lt: #EAF5E4;
+  --green-bd: #9DD884;
+
+  /* ── Harvest gold (accent) ── */
+  --gold:    #7A5010;
+  --gold-5:  #B87A18;
+  --gold-6:  #D4942A;
+  --gold-lt: #FAF3E0;
+  --gold-bd: #E8C878;
+
+  /* ── River teal (water/data) ── */
+  --teal:    #0E5E6E;
+  --teal-5:  #1A8898;
+  --teal-6:  #24A0B0;
+  --teal-lt: #E0F4F8;
+  --teal-bd: #7ECFDE;
+
+  /* ── Status: DANGER (red, distinct from green palette) ── */
+  --danger:    #8C1515;
+  --danger-5:  #C82020;
+  --danger-lt: #FBEAEA;
+  --danger-bd: #E5A0A0;
+
+  /* ── Status: WARNING (amber) ── */
+  --warn:    #7A5010;
+  --warn-5:  #C48020;
+  --warn-lt: #FAF3E0;
+  --warn-bd: #E8C878;
+
+  /* ── Status: SAFE (emerald, distinct from forest green brand) ── */
+  --safe:    #0A6640;
+  --safe-5:  #0FA860;
+  --safe-lt: #E0FAF0;
+  --safe-bd: #70DDB0;
+
+  /* ── Shadows ── */
+  --sh-xs: 0 1px 1px rgba(30,50,15,.04);
+  --sh-sm: 0 1px 3px rgba(30,50,15,.06);
+  --sh-md: 0 3px 8px rgba(30,50,15,.08);
+  --sh-lg: 0 8px 18px rgba(30,50,15,.10);
+  --sh-xl: 0 14px 30px rgba(30,50,15,.12);
+  --sh-gold:   0 3px 10px rgba(180,120,24,.18);
+  --sh-teal:   0 3px 10px rgba(26,136,152,.15);
+  --sh-danger: 0 3px 10px rgba(200,32,32,.15);
+
+  /* ── Radius ── */
+  --r-xs:   4px;
+  --r-sm:   7px;
+  --r-md:  11px;
+  --r-lg:  16px;
+  --r-full: 9999px;
+
+  /* ── Fonts ── */
+  --ff-display: 'IM Fell English SC', serif;
+  --ff-heading: 'Crimson Pro', serif;
+  --ff-mono:    'JetBrains Mono', monospace;
+  --ff-body:    'Nunito', sans-serif;
+
+  /* ── Motion ── */
+  --ease:     cubic-bezier(.16, 1, .3, 1);
+  --ease-std: cubic-bezier(.4, 0, .2, 1);
+  --t-fast: 120ms;
+  --t-base: 200ms;
+  --t-slow: 320ms;
+}
+
+html, body {
+  font-family: var(--ff-body);
+  font-size: 14px;
+  line-height: 1.55;
+  background: var(--page);
+  color: var(--ink-1);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Subtle rice-field stripe texture */
+body {
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      rgba(40,92,26,.018) 0px,
+      rgba(40,92,26,.018) 1px,
+      transparent 1px,
+      transparent 28px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(40,92,26,.018) 0px,
+      rgba(40,92,26,.018) 1px,
+      transparent 1px,
+      transparent 28px
+    );
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-md); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-str); }
+* { scrollbar-width: thin; scrollbar-color: var(--border-md) transparent; }
+
+:focus-visible {
+  outline: 2px solid var(--gold-6);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* Tabler icon sizes */
+.ti { line-height: 1; vertical-align: middle; }
+.ti-xs  { font-size: 12px; }
+.ti-sm  { font-size: 14px; }
+.ti-md  { font-size: 16px; }
+.ti-lg  { font-size: 20px; }
+.ti-xl  { font-size: 26px; }

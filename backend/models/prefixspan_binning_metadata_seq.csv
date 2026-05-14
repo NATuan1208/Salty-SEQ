@@ -1,0 +1,17 @@
+feature,strategy,edges,clip_min_p01,clip_max_p99
+days_without_rain,precip_zero_inflated,"[0.0, 5.0, 33.0]",0.0,76.0
+et0,generic_quantile,"[3.44, 4.14, 4.79]",1.4709,6.189099999999999
+heatwave_consecutive_days,salinity_quantile_median_fallback,[0.0],0.0,2.9099999999998545
+lst,temperature_quantile,"[29.0366502105041, 32.782243925174896, 35.55967315025624]",-83.61010613252836,40.27430719249354
+moisture_deficit,signed_with_zero_center,"[-4.44, 0.0, 4.39]",-30.8456,6.16
+precipitation,precip_zero_inflated,"[0.0, 4.5, 17.0]",0.0,33.1
+radiation,generic_quantile,"[16.67, 19.75, 21.9775]",6.76,25.59
+salinity_psu,salinity_quantile,"[3.24, 11.024999999999999, 20.63]",0.5,27.9191
+salinity_tendency,signed_with_zero_center,"[-0.2714285714285722, 0.0, 0.27999999999999997]",-1.1398714285714275,1.110000000000001
+soil_moisture_deep,soil_moisture_quantile,"[0.23688541666666657, 0.35093749999999996, 0.407375]",0.13625375,0.4983675
+soil_moisture_surface,soil_moisture_quantile,"[0.220625, 0.3628958333333333, 0.4099062499999999]",0.10292416666666661,0.4977424999999999
+soil_temp,temperature_quantile,"[27.22083333333333, 28.14583333333333, 29.21666666666667]",25.241666666666664,33.3375
+temp_max,temperature_quantile,"[29.2, 30.2, 31.4]",26.509,34.7
+temp_mean,temperature_quantile,"[26.3, 27.0, 27.7]",24.1,30.1
+temp_min,temperature_quantile,"[24.1, 24.9, 25.6]",21.0,27.6
+wind_max,generic_quantile,"[12.7, 15.9, 19.8]",7.3,32.3
