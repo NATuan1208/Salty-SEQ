@@ -34,7 +34,7 @@
 
       stations.forEach(s => {
         const rate = s.stress_rate_30d ?? 0.1;
-        const col  = rate >= 0.15 ? '#C82020' : rate >= 0.05 ? '#C48020' : '#0FA860';
+        const col  = rate >= 0.50 ? '#C82020' : rate >= 0.30 ? '#C48020' : '#0FA860';
         const isSel = s.station_id === selected;
 
         const mk = L.circleMarker([s.lat, s.lon], {
@@ -81,7 +81,7 @@
     const sel = stations.find(s => s.station_id === selected);
 
     return (
-      <div style={{ display:'flex', height:'calc(100vh - 56px)', overflow:'hidden' }}>
+      <div style={{ display:'flex', height:'calc(100vh - 50px)', overflow:'hidden' }}>
         {/* Sidebar */}
         <div style={{
           width:'280px', flexShrink:0,
@@ -112,7 +112,7 @@
           {/* Station list */}
           {stations.map(s => {
             const rate = s.stress_rate_30d ?? 0.1;
-            const col  = rate >= 0.15 ? '#C82020' : rate >= 0.05 ? '#C48020' : '#0FA860';
+            const col  = rate >= 0.50 ? '#C82020' : rate >= 0.30 ? '#C48020' : '#0FA860';
             const isSel = s.station_id === selected;
             return (
               <div
@@ -148,7 +148,7 @@
                 {sel.name}
               </div>
               {[
-                ['Stress 30 ngày', `${((sel.stress_rate_30d??0.1)*100).toFixed(1)}%`, sel.stress_rate_30d>=0.15?'var(--danger-5)':sel.stress_rate_30d>=0.05?'var(--warn-5)':'var(--safe-5)'],
+                ['Stress 30 ngày', `${((sel.stress_rate_30d??0.1)*100).toFixed(1)}%`, sel.stress_rate_30d>=0.50?'var(--danger-5)':sel.stress_rate_30d>=0.30?'var(--warn-5)':'var(--safe-5)'],
                 ['Stress tổng',   `${((sel.stress_rate_total??0.1)*100).toFixed(1)}%`, 'var(--ink-2)'],
                 ['Cửa biển',       `${sel.distance_to_estuary_km} km`, 'var(--teal-5)'],
                 ['Vĩ độ / Kinh độ', `${sel.lat.toFixed(4)}°N, ${sel.lon.toFixed(4)}°E`, 'var(--ink-3)'],
@@ -171,7 +171,7 @@
             position:'absolute', top:'14px', right:'14px', zIndex:800,
             background:'rgba(244,246,240,.92)', backdropFilter:'blur(10px)',
             border:'1px solid var(--border-md)', borderRadius:'var(--r-md)',
-            padding:'11px 14px', boxShadow:'var(--sh-lg)',
+            padding:'11px 14px', boxShadow:'var(--sh-sm)',
             fontFamily:'var(--ff-body)', fontSize:'12px', color:'var(--ink-3)',
             maxWidth:'200px',
           }}>
@@ -243,7 +243,7 @@
         display:'flex', flexDirection:'column', gap:'8px',
         transition:'all .2s ease',
       }}
-      onMouseEnter={e => { e.currentTarget.style.transform='translateY(-3px)'; e.currentTarget.style.boxShadow='var(--sh-lg)'; }}
+      onMouseEnter={e => { e.currentTarget.style.transform='translateY(-1px)'; e.currentTarget.style.boxShadow='var(--sh-md)'; }}
       onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='var(--sh-sm)'; }}
       >
         <div style={{ display:'flex', alignItems:'center', gap:'9px' }}>
@@ -265,7 +265,7 @@
 
   function AboutPage() {
     return (
-      <div style={{ overflowY:'auto', height:'calc(100vh - 56px)' }}>
+      <div style={{ overflowY:'auto', height:'calc(100vh - 50px)' }}>
 
         {/* Hero banner */}
         <div style={{
@@ -308,6 +308,31 @@
 
         <div style={{ padding:'28px 36px', maxWidth:'1100px', margin:'0 auto' }}>
 
+          {/* Pipeline overview */}
+          <div style={{ marginBottom:'32px' }}>
+            <div style={{ fontFamily:'var(--ff-heading)', fontSize:'20px', fontWeight:700, color:'var(--ink-1)', marginBottom:'14px', display:'flex', alignItems:'center', gap:'8px' }}>
+              <i className="ti ti-route" style={{ color:'var(--teal-5)' }}/> Sơ đồ pipeline
+            </div>
+            <div className="pipeline-flow">
+              {[
+                ['Nguồn dữ liệu', 'MODIS, Open-Meteo, GEE, quan trắc mặn', 'ti-database'],
+                ['Feature engineering', '46 đặc trưng theo trạm/ngày', 'ti-adjustments-horizontal'],
+                ['XGBoost', 'Dự báo xác suất stress cây trồng', 'ti-chart-histogram'],
+                ['PrefixSpan', 'Tìm chuỗi cảnh báo trong 14 ngày', 'ti-timeline'],
+                ['Khuyến nghị', 'Ưu tiên hành động theo mức rủi ro', 'ti-clipboard-list'],
+              ].map(([title, desc, icon], i, arr) => (
+                <React.Fragment key={title}>
+                  <div className="pipeline-step">
+                    <div className="pipeline-icon"><i className={`ti ${icon}`} /></div>
+                    <div className="pipeline-title">{title}</div>
+                    <div className="pipeline-desc">{desc}</div>
+                  </div>
+                  {i < arr.length - 1 && <div className="pipeline-arrow"><i className="ti ti-arrow-right" /></div>}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+
           {/* Model metrics */}
           <div style={{ marginBottom:'32px' }}>
             <div style={{ fontFamily:'var(--ff-heading)', fontSize:'20px', fontWeight:700, color:'var(--ink-1)', marginBottom:'16px', display:'flex', alignItems:'center', gap:'8px' }}>
@@ -323,7 +348,7 @@
               borderRadius:'var(--r-md)', fontFamily:'var(--ff-body)', fontSize:'12px', color:'var(--ink-3)',
               display:'flex', gap:'20px', flexWrap:'wrap',
             }}>
-              <span><strong style={{ color:'var(--ink-2)' }}>Ngưỡng quyết định:</strong> 0.5</span>
+              <span><strong style={{ color:'var(--ink-2)' }}>Ngưỡng rủi ro:</strong> Cảnh báo ≥5% · Nguy hiểm ≥15%</span>
               <span><strong style={{ color:'var(--ink-2)' }}>Scale pos weight:</strong> 8.946 (class imbalance ~10% positive)</span>
               <span><strong style={{ color:'var(--ink-2)' }}>Train/Test split:</strong> ≤ 2022-12-31 / 2023-01-01 → 2025</span>
               <span><strong style={{ color:'var(--ink-2)' }}>Features:</strong> 46 chiều đa nguồn</span>
@@ -340,28 +365,59 @@
               background:'var(--surface)', border:'1px solid var(--border)',
               borderRadius:'var(--r-lg)', padding:'16px 20px', boxShadow:'var(--sh-sm)',
             }}>
-              {TOP_FEATURES.map(f => (
-                <div key={f.rank} style={{ display:'flex', alignItems:'center', gap:'12px', padding:'7px 0', borderBottom:'1px solid var(--border)' }}
-                  className="top-feat"
-                >
-                  <span style={{ fontFamily:'var(--ff-mono)', fontSize:'11px', color:'var(--ink-4)', width:'20px', textAlign:'right' }}>#{f.rank}</span>
-                  <div style={{ flex:1, minWidth:0 }}>
-                    <div style={{ fontFamily:'var(--ff-mono)', fontSize:'12px', color:'var(--ink-2)', fontWeight:600 }}>{f.name}</div>
-                    <div style={{ fontFamily:'var(--ff-body)', fontSize:'10.5px', color:'var(--ink-4)' }}>{f.desc}</div>
-                  </div>
-                  <div style={{ width:'220px' }}>
-                    <div style={{ height:'6px', background:'var(--surface-3)', borderRadius:'3px', overflow:'hidden', border:'1px solid var(--border)', marginBottom:'3px' }}>
-                      <div style={{
-                        height:'100%', borderRadius:'3px',
-                        width:`${(f.gain/maxGain*100).toFixed(1)}%`,
-                        background:'linear-gradient(90deg, var(--green-5) 0%, var(--teal-5) 100%)',
-                        transition:'width 1.2s ease',
-                      }}/>
+              {TOP_FEATURES.map(f => {
+                const hasEntry = MS.FEATURE_MAP && MS.FEATURE_MAP[f.name];
+                return (
+                  <div
+                    key={f.rank}
+                    className="top-feat"
+                    style={{
+                      display:'flex', alignItems:'center', gap:'12px',
+                      padding:'7px 0', borderBottom:'1px solid var(--border)',
+                      cursor: hasEntry ? 'pointer' : 'default',
+                      borderRadius:'var(--r-sm)',
+                      transition:'background .15s',
+                    }}
+                    onClick={() => hasEntry && MS.navigateToFeature && MS.navigateToFeature(f.name)}
+                    onMouseEnter={e => { if (hasEntry) e.currentTarget.style.background='var(--surface-hover)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background=''; }}
+                    title={hasEntry ? `Xem chi tiết: ${f.name} →` : ''}
+                  >
+                    <span style={{ fontFamily:'var(--ff-mono)', fontSize:'11px', color:'var(--ink-4)', width:'20px', textAlign:'right' }}>#{f.rank}</span>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
+                        <span style={{ fontFamily:'var(--ff-mono)', fontSize:'12px', color: hasEntry ? 'var(--teal-5)' : 'var(--ink-2)', fontWeight:600, transition:'color .15s' }}>{f.name}</span>
+                        {hasEntry && (
+                          <i className="ti ti-arrow-up-right" style={{ fontSize:'10px', color:'var(--teal-5)', opacity:.6 }}/>
+                        )}
+                      </div>
+                      <div style={{ fontFamily:'var(--ff-body)', fontSize:'10.5px', color:'var(--ink-4)' }}>{f.desc}</div>
                     </div>
+                    <div style={{ width:'220px' }}>
+                      <div style={{ height:'6px', background:'var(--surface-3)', borderRadius:'3px', overflow:'hidden', border:'1px solid var(--border)', marginBottom:'3px' }}>
+                        <div style={{
+                          height:'100%', borderRadius:'3px',
+                          width:`${(f.gain/maxGain*100).toFixed(1)}%`,
+                          background:'linear-gradient(90deg, var(--green-5) 0%, var(--teal-5) 100%)',
+                          transition:'width 1.2s ease',
+                        }}/>
+                      </div>
+                    </div>
+                    <span style={{ fontFamily:'var(--ff-mono)', fontSize:'11px', color:'var(--gold-6)', fontWeight:700, width:'44px', textAlign:'right' }}>{f.gain}</span>
                   </div>
-                  <span style={{ fontFamily:'var(--ff-mono)', fontSize:'11px', color:'var(--gold-6)', fontWeight:700, width:'44px', textAlign:'right' }}>{f.gain}</span>
-                </div>
-              ))}
+                );
+              })}
+            </div>
+            <div style={{
+              marginTop:'8px', padding:'7px 12px',
+              background:'color-mix(in srgb, var(--teal-5) 6%, var(--surface))',
+              border:'1px solid color-mix(in srgb, var(--teal-5) 20%, var(--border))',
+              borderRadius:'var(--r-sm)',
+              fontFamily:'var(--ff-body)', fontSize:'11px', color:'var(--ink-4)',
+              display:'flex', alignItems:'center', gap:'5px',
+            }}>
+              <i className="ti ti-info-circle" style={{ color:'var(--teal-5)', fontSize:'12px' }}/>
+              Nhấn vào tên feature để xem giải thích chi tiết trong trang Đặc trưng
             </div>
           </div>
 
@@ -416,7 +472,7 @@
                     display:'flex', gap:'12px', alignItems:'flex-start',
                     transition:'all .2s ease',
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='var(--sh-md)'; }}
+                  onMouseEnter={e => { e.currentTarget.style.transform='translateY(-1px)'; e.currentTarget.style.boxShadow='var(--sh-sm)'; }}
                   onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='var(--sh-xs)'; }}
                   >
                     <div style={{

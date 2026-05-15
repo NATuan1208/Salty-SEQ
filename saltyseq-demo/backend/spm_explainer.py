@@ -151,17 +151,37 @@ def match_patterns(station_id: str, date_str: str, top_k: int = 5) -> list[dict]
     patterns = load_patterns()
     all_patterns = patterns.get("danger", []) + patterns.get("warning", [])
 
-    matched: list[dict] = []
+    all_matched = []
     for p in all_patterns:
         pat = p.get("pattern", [])
         if pat and contains_pattern(sequence, pat):
-            matched.append({
+            all_matched.append({
                 "pattern": pat,
                 "support": p.get("support", 0),
                 "support_pct": p.get("support_pct", 0.0),
                 "type": p.get("type", "warning"),
                 "label_vi": p.get("label_vi") or _make_label_vi(pat),
+                "len": len(pat)
             })
 
-    matched.sort(key=lambda x: (x["type"] == "danger", x["support"]), reverse=True)
-    return matched[:top_k] if matched else _FALLBACK_PATTERNS[:top_k]
+    # Ưu tiên các chuỗi DÀI NHẤT trước (vì nó giải thích chính xác nhất lịch sử và tiến trình)
+    all_matched.sort(key=lambda x: (x["len"], x["support"]), reverse=True)
+
+    # Lọc bỏ các chuỗi con (subsequences) để tránh trùng lặp hiển thị
+    # Ví dụ: nếu đã chọn [A -> A -> A], thì sẽ bỏ qua [A -> A] và [A]
+    maximal_matched = []
+    for m in all_matched:
+        pat = m["pattern"]
+        # Kiểm tra xem pat này có phải là chuỗi con của bất kỳ chuỗi nào đã được duyệt chưa?
+        is_sub = any(contains_pattern(sel["pattern"], pat) for sel in maximal_matched)
+        if not is_sub:
+            # Gỡ bỏ "len" key để tránh gửi dữ liệu thừa xuống frontend
+            clean_m = {k: v for k, v in m.items() if k != "len"}
+            maximal_matched.append(clean_m)
+            if len(maximal_matched) >= top_k:
+                break
+
+    # Sắp xếp lại lần cuối: Ưu tiên DANGER, sau đó đến mức độ phổ biến (support)
+    maximal_matched.sort(key=lambda x: (x["type"] == "danger", x["support"]), reverse=True)
+
+    return maximal_matched if maximal_matched else _FALLBACK_PATTERNS[:top_k]

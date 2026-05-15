@@ -9,11 +9,11 @@
   z-index: 500;
   display: flex;
   align-items: center;
-  height: 56px;
-  padding: 0 20px;
+  height: 50px;
+  padding: 0 16px;
   background: linear-gradient(135deg, #1B3A0E 0%, #243F14 60%, #1A3A1A 100%);
   border-bottom: 1px solid rgba(255,255,255,.08);
-  box-shadow: 0 2px 12px rgba(20,40,10,.30);
+  box-shadow: 0 1px 6px rgba(20,40,10,.22);
   overflow: hidden;
 }
 
@@ -53,7 +53,7 @@
 }
 
 .logo-mark {
-  width: 34px; height: 34px;
+  width: 30px; height: 30px;
   border-radius: var(--r-sm);
   background: linear-gradient(135deg, rgba(212,148,42,.25) 0%, rgba(74,158,50,.15) 100%);
   border: 1px solid rgba(212,148,42,.35);
@@ -63,7 +63,7 @@
 
 .logo-text {
   font-family: var(--ff-display);
-  font-size: 19px;
+  font-size: 17px;
   color: #E8C870;
   letter-spacing: .02em;
   line-height: 1;
@@ -72,7 +72,7 @@
 
 .logo-sub {
   font-family: var(--ff-body);
-  font-size: 9.5px;
+  font-size: 8.5px;
   font-weight: 600;
   color: rgba(160,200,130,.7);
   letter-spacing: .1em;
@@ -117,23 +117,14 @@
 }
 
 /* Breadcrumb */
-.hdr-breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-family: var(--ff-mono);
-  font-size: 11px;
-  color: rgba(160,200,130,.6);
-  margin-right: 6px;
-}
-.hdr-breadcrumb-active { color: #E8C870; font-weight: 700; }
+.hdr-breadcrumb { display: none; }
 
 /* Pipeline pill */
 .pipe-pill {
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 5px 13px;
+  padding: 4px 10px;
   border-radius: var(--r-full);
   border: 1px solid rgba(255,255,255,.12);
   background: rgba(255,255,255,.07);
@@ -166,7 +157,7 @@
 .layout {
   display: grid;
   grid-template-columns: 258px 1fr 315px;
-  height: calc(100vh - 56px);
+  height: calc(100vh - 50px);
   overflow: hidden;
 }
 
@@ -202,6 +193,17 @@
   padding: 1px 7px;
   border-radius: var(--r-full);
 }
+
+.content-breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 8px;
+  font-family: var(--ff-body);
+  font-size: 11px;
+  color: var(--ink-4);
+}
+.content-breadcrumb strong { color: var(--gold-5); font-weight: 800; }
 
 /* Mock banner */
 .mock-banner {
