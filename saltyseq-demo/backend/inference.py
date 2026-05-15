@@ -55,8 +55,11 @@ def load_artifacts() -> tuple:
 
     scaler = None
     if scaler_path.exists():
-        with open(scaler_path, "rb") as f:
-            scaler = pickle.load(f)
+        try:
+            with open(scaler_path, "rb") as f:
+                scaler = pickle.load(f)
+        except Exception:
+            scaler = None
 
     cols = FEATURE_COLUMNS
     if cols_path.exists():
