@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+*.log
+
+.venv/
+.vscode/
+.claude/
+
+backend/data/*.db
+backend/data/uvicorn_*.log

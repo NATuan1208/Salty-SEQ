@@ -61,7 +61,7 @@
         const rate = pred ? pred.probability : (s.stress_rate_30d ?? 0.1);
         const col  = pred
           ? (pred.label === 'DANGER' ? '#C82020' : pred.label === 'WARNING' ? '#C48020' : '#0FA860')
-          : (rate > 0.50 ? '#C82020' : rate > 0.30 ? '#C48020' : '#0FA860');
+          : (rate >= 0.50 ? '#C82020' : rate >= 0.30 ? '#C48020' : '#0FA860');
         const isSel = s.station_id === selected;
 
         const mk = L.circleMarker([s.lat, s.lon], {
@@ -109,7 +109,7 @@
           const rate = pred ? pred.probability : (s.stress_rate_30d ?? 0.1);
           const col  = pred
             ? (pred.label === 'DANGER' ? '#C82020' : pred.label === 'WARNING' ? '#C48020' : '#0FA860')
-            : (rate > 0.50 ? '#C82020' : rate > 0.30 ? '#C48020' : '#0FA860');
+            : (rate >= 0.50 ? '#C82020' : rate >= 0.30 ? '#C48020' : '#0FA860');
           const isSel = s.station_id === selected;
           return (
             <div

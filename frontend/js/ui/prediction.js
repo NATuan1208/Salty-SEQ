@@ -5,7 +5,7 @@
   /* ═══════════════════════════════════════════════════
      RISK NEEDLE GAUGE — speedometer style, semi-circle
      Left (0%) → Top (50%) → Right (100%)
-    3 colour zones: SAFE <=30% | WARNING 30-50% | DANGER >50%
+    3 colour zones: SAFE <30% | WARNING 30-50% | DANGER >=50%
      Needle animates to probability position.
   ═══════════════════════════════════════════════════ */
   function CircularGauge({ probability, label, confidence, confidenceDetail }) {
@@ -43,8 +43,8 @@
     const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
     const [nx, ny] = pt(clamp(disp, 0, 100), RN);
 
-    const col    = probability > 0.50 ? '#C82020' : probability > 0.30 ? '#C48020' : '#0FA860';
-    const cssVar = probability > 0.50 ? 'var(--danger-5)' : probability > 0.30 ? 'var(--warn-5)' : 'var(--safe-5)';
+    const col    = probability >= 0.50 ? '#C82020' : probability >= 0.30 ? '#C48020' : '#0FA860';
+    const cssVar = probability >= 0.50 ? 'var(--danger-5)' : probability >= 0.30 ? 'var(--warn-5)' : 'var(--safe-5)';
     const viLabel = { DANGER:'NGUY HIỂM', WARNING:'CẢNH BÁO', SAFE:'AN TOÀN' };
     const icon    = { DANGER:'⚠', WARNING:'⚠', SAFE:'✓' };
     const dispText = disp.toFixed(1);

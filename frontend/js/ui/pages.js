@@ -34,7 +34,7 @@
 
       stations.forEach(s => {
         const rate = s.stress_rate_30d ?? 0.1;
-        const col  = rate > 0.50 ? '#C82020' : rate > 0.30 ? '#C48020' : '#0FA860';
+        const col  = rate >= 0.50 ? '#C82020' : rate >= 0.30 ? '#C48020' : '#0FA860';
         const isSel = s.station_id === selected;
 
         const mk = L.circleMarker([s.lat, s.lon], {
@@ -112,7 +112,7 @@
           {/* Station list */}
           {stations.map(s => {
             const rate = s.stress_rate_30d ?? 0.1;
-            const col  = rate > 0.50 ? '#C82020' : rate > 0.30 ? '#C48020' : '#0FA860';
+            const col  = rate >= 0.50 ? '#C82020' : rate >= 0.30 ? '#C48020' : '#0FA860';
             const isSel = s.station_id === selected;
             return (
               <div
@@ -148,7 +148,7 @@
                 {sel.name}
               </div>
               {[
-                ['Stress 30 ngày', `${((sel.stress_rate_30d??0.1)*100).toFixed(1)}%`, sel.stress_rate_30d>0.50?'var(--danger-5)':sel.stress_rate_30d>0.30?'var(--warn-5)':'var(--safe-5)'],
+                ['Stress 30 ngày', `${((sel.stress_rate_30d??0.1)*100).toFixed(1)}%`, sel.stress_rate_30d>=0.50?'var(--danger-5)':sel.stress_rate_30d>=0.30?'var(--warn-5)':'var(--safe-5)'],
                 ['Stress tổng',   `${((sel.stress_rate_total??0.1)*100).toFixed(1)}%`, 'var(--ink-2)'],
                 ['Cửa biển',       `${sel.distance_to_estuary_km} km`, 'var(--teal-5)'],
                 ['Vĩ độ / Kinh độ', `${sel.lat.toFixed(4)}°N, ${sel.lon.toFixed(4)}°E`, 'var(--ink-3)'],

@@ -209,10 +209,10 @@ def mock_predict(features: dict) -> float:
 
 
 def get_label_and_confidence(probability: float) -> tuple[str, str]:
-    if probability > 0.50:
+    if probability >= 0.50:
         label = "DANGER"
         confidence = "HIGH" if probability >= 0.70 else "MEDIUM"
-    elif probability > 0.30:
+    elif probability >= 0.30:
         label = "WARNING"
         confidence = "MEDIUM"
     else:

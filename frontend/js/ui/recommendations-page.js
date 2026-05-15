@@ -27,8 +27,8 @@
   };
 
   function getLevel(rate) {
-    if (rate > 0.50) return 'danger';
-    if (rate > 0.30) return 'medium';
+    if (rate >= 0.50) return 'danger';
+    if (rate >= 0.30) return 'medium';
     return 'safe';
   }
 
